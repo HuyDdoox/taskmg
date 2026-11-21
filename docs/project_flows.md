@@ -90,4 +90,19 @@ flowchart LR
 - **Hiệu năng:** Next.js App Router kết nối trực tiếp, `npm run build` thành công trong 536ms.
 
 ---
+
+## 📌 FLOW 6: ĐẨY CODE LÊN GITHUB & THIẾT LẬP GO-LIVE TRIỂN KHAI
+
+```mermaid
+flowchart LR
+    A["👤 Sếp cung cấp repo GitHub & yêu cầu Go-live"] --> B["📦 Stage, Commit 15 Files Toàn Diện"]
+    B --> C["🚀 Git Push lên https://github.com/HuyDdoox/taskmg.git\n(Branch main đồng bộ 100%)"]
+    C --> D["🌐 Kiến Trúc Go-Live:\n• Vercel: Host Fullstack Next.js (FE + BE Server Actions)\n• Supabase: Managed PostgreSQL Cloud\n• Render: Host Realtime WebSocket Server"]
+```
+
+### Chú thích súc tích:
+- **Kho lưu trữ:** Toàn bộ mã nguồn, tài liệu BA, lược đồ Prisma và UI Kanban đã đẩy lên GitHub `HuyDdoox/taskmg`.
+- **Mô hình Go-Live:** Next.js 15 triển khai trực tiếp trên Vercel (kết nối Supabase Database).
+
+---
 *(Các luồng công việc tiếp theo sẽ được tự động cập nhật bên dưới khi triển khai từng pha)*

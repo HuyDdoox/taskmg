@@ -57,7 +57,8 @@ gantt
 
 ---
 
-### ⏳ PHA 5: TRIỂN KHAI & BÀN GIAO (CHỜ TIẾN HÀNH)
-- [ ] **5.1. Đóng gói ứng dụng & Cấu hình môi trường:** Biến môi trường `.env`.
-- [ ] **5.2. Triển khai Cloud (Production URL):** Đưa web lên môi trường trực tuyến.
-- [ ] **5.3. Bàn giao tài liệu quản trị & Nghiệm thu.**
+### 🚀 PHA 5: TRIỂN KHAI & BÀN GIAO (ĐANG THỰC HIỆN GO-LIVE)
+- [x] **5.1. Thiết lập kho lưu trữ GitHub:** Đã đẩy toàn bộ source code lên `https://github.com/HuyDdoox/taskmg.git`.
+- [x] **5.2. Kết nối CSDL Cloud:** Đã tích hợp Supabase Cloud PostgreSQL hoạt động ổn định.
+- [ ] **5.3. Triển khai Vercel Go-Live:** Import repo vào Vercel, cấu hình biến môi trường và chạy URL Production.
+- [ ] **5.4. Triển khai Render (Nếu có server Socket.io riêng).**
