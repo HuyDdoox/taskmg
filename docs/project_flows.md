@@ -105,4 +105,21 @@ flowchart LR
 - **Mô hình Go-Live:** Next.js 15 triển khai trực tiếp trên Vercel (kết nối Supabase Database).
 
 ---
+
+## 📌 FLOW 7: XÂY DỰNG BACKEND REALTIME SOCKET.IO & SẴN SÀNG GO-LIVE RENDER
+
+```mermaid
+flowchart LR
+    A["👤 Sếp chỉ đạo Go-live Backend Render"] --> B["⚙️ Khởi tạo thư mục server/\n(Express.js + Socket.io + CORS)"]
+    B --> C["⚡ Lập trình Event Realtime:\n• join_project • task_moved • send_message"]
+    C --> D["📄 Cấu hình render.yaml tự động\n(RootDir: server, Port: 10000)"]
+    D --> E["🚀 Git Push lên HuyDdoox/taskmg.git\n(Sẵn sàng 1-click deploy trên Render)"]
+```
+
+### Chú thích súc tích:
+- **Backend Service:** Đã xây dựng hoàn chỉnh máy chủ WebSocket thời gian thực độc lập tại thư mục `server/`.
+- **Cấu hình Render:** Tự động hóa qua file `render.yaml` (Node.js runtime, port 10000, khu vực Singapore siêu nhanh).
+- **Trạng thái:** Đã đẩy toàn bộ lên nhánh `main` của GitHub.
+
+---
 *(Các luồng công việc tiếp theo sẽ được tự động cập nhật bên dưới khi triển khai từng pha)*
