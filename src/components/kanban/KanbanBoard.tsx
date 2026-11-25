@@ -13,9 +13,17 @@ import {
 
 interface KanbanBoardProps {
   initialProject: any;
+  socket?: any;
+  isSocketConnected?: boolean;
+  hideSidebar?: boolean;
 }
 
-export function KanbanBoard({ initialProject }: KanbanBoardProps) {
+export function KanbanBoard({ 
+  initialProject,
+  socket,
+  isSocketConnected,
+  hideSidebar = false
+}: KanbanBoardProps) {
   const [project, setProject] = useState(initialProject);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -119,10 +127,19 @@ export function KanbanBoard({ initialProject }: KanbanBoardProps) {
 
     setDraggedTaskId(null);
 
+    const newOrderIndex = Date.now() % 100000;
     // Call server action
-    const res = await updateTaskColumn(taskId, targetColumnId, Date.now() % 100000);
+    const res = await updateTaskColumn(taskId, targetColumnId, newOrderIndex);
     if (!res.success) {
       alert('Không thể lưu trạng thái kéo thả lên máy chủ');
+    } else if (socket) {
+      socket.emit('task_moved', {
+        projectId: project.id,
+        taskId,
+        issueKey: foundTask.issueKey,
+        targetColumnId,
+        orderIndex: newOrderIndex,
+      });
     }
   };
 
@@ -168,49 +185,51 @@ export function KanbanBoard({ initialProject }: KanbanBoardProps) {
     <div className="flex h-screen w-full bg-[#F4F5F7] text-gray-900 font-sans overflow-hidden">
       
       {/* 1. SIDEBAR TRÁI (JIRA-STYLE COLLAPSIBLE SIDEBAR) */}
-      <aside className="w-64 bg-[#0747A6] text-white flex flex-col justify-between shrink-0 shadow-xl">
-        <div>
-          {/* Logo & Project Title */}
-          <div className="p-4 flex items-center gap-3 border-b border-blue-800/40">
-            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-white text-sm">
-              <FolderKanban className="w-5 h-5 text-blue-200" />
+      {!hideSidebar && (
+        <aside className="w-64 bg-[#0747A6] text-white flex flex-col justify-between shrink-0 shadow-xl">
+          <div>
+            {/* Logo & Project Title */}
+            <div className="p-4 flex items-center gap-3 border-b border-blue-800/40">
+              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-white text-sm">
+                <FolderKanban className="w-5 h-5 text-blue-200" />
+              </div>
+              <div>
+                <div className="font-bold text-sm leading-tight text-white">Task Management</div>
+                <div className="text-[11px] text-blue-200 font-mono">Key: [{project.projectKey}]</div>
+              </div>
             </div>
-            <div>
-              <div className="font-bold text-sm leading-tight text-white">Task Management</div>
-              <div className="text-[11px] text-blue-200 font-mono">Key: [{project.projectKey}]</div>
-            </div>
+
+            {/* Navigation Links */}
+            <nav className="p-3 space-y-1">
+              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-700/60 text-white text-xs font-semibold">
+                <LayoutGrid className="w-4 h-4 text-blue-200" /> Bảng Kanban
+              </a>
+              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
+                <Layers className="w-4 h-4 text-blue-300" /> Giai Đoạn (Milestones)
+              </a>
+              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
+                <MessageSquare className="w-4 h-4 text-blue-300" /> Kênh Chat Dự Án
+              </a>
+              <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
+                <Users className="w-4 h-4 text-blue-300" /> Thành Viên ({project.members?.length || 3})
+              </a>
+            </nav>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="p-3 space-y-1">
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-700/60 text-white text-xs font-semibold">
-              <LayoutGrid className="w-4 h-4 text-blue-200" /> Bảng Kanban
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
-              <Layers className="w-4 h-4 text-blue-300" /> Giai Đoạn (Milestones)
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
-              <MessageSquare className="w-4 h-4 text-blue-300" /> Kênh Chat Dự Án
-            </a>
-            <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-700/30 text-blue-100 text-xs font-medium transition-colors">
-              <Users className="w-4 h-4 text-blue-300" /> Thành Viên ({project.members?.length || 3})
-            </a>
-          </nav>
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="p-3 border-t border-blue-800/40">
-          <div className="flex items-center gap-2.5 p-2 rounded-lg bg-blue-800/40">
-            <div className="w-7 h-7 rounded-full bg-blue-400 text-blue-900 flex items-center justify-center text-xs font-bold">
-              {currentUser?.fullName?.charAt(0) || 'S'}
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <div className="text-xs font-semibold text-white truncate">{currentUser?.fullName}</div>
-              <div className="text-[10px] text-blue-200 truncate">Admin / PO</div>
+          {/* Sidebar Footer */}
+          <div className="p-3 border-t border-blue-800/40">
+            <div className="flex items-center gap-2.5 p-2 rounded-lg bg-blue-800/40">
+              <div className="w-7 h-7 rounded-full bg-blue-400 text-blue-900 flex items-center justify-center text-xs font-bold">
+                {currentUser?.fullName?.charAt(0) || 'S'}
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="text-xs font-semibold text-white truncate">{currentUser?.fullName}</div>
+                <div className="text-[10px] text-blue-200 truncate">Admin / PO</div>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      )}
 
       {/* 2. KHÔNG GIAN LÀM VIỆC CHÍNH (MAIN WORKSPACE) */}
       <main className="flex-1 flex flex-col min-w-0 bg-white overflow-hidden">

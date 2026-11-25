@@ -8,7 +8,16 @@ export async function getKanbanData() {
     const project = await prisma.project.findFirst({
       where: { projectKey: 'TASK' },
       include: {
+        owner: true,
         milestones: true,
+        channels: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'asc' },
+              include: { sender: true },
+            },
+          },
+        },
         columns: {
           orderBy: { position: 'asc' },
           include: {

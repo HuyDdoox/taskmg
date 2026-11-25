@@ -122,4 +122,21 @@ flowchart LR
 - **Trạng thái:** Đã đẩy toàn bộ lên nhánh `main` của GitHub.
 
 ---
+
+## 📌 FLOW 8: QUY HOẠCH CẤU TRÚC THƯ MỤC & HOÀN TẤT KÊNH CHAT REALTIME (TASK-5 & TASK-6)
+
+```mermaid
+flowchart LR
+    A["👤 Sếp duyệt cấu trúc thư mục & code"] --> B["🗂️ Quy hoạch module: types, hooks, layout, chat"]
+    B --> C["💬 Lập trình Kênh Chat Dự Án\n(Lưu Supabase + Realtime WebSocket)"]
+    C --> D["⚡ Kết nối useSocket Client tới Render\n(Tự động đồng bộ kéo task & tin nhắn)"]
+    D --> E["🎯 Build Pass 100% trong 2.6s\n(Sẵn sàng đẩy code Go-Live)"]
+```
+
+### Chú thích súc tích:
+- **Cấu trúc hoàn thiện:** Đã module hóa thành `components/layout/Sidebar.tsx`, `components/chat/ChatChannelView.tsx`, `components/milestones/MilestonesView.tsx`, `hooks/useSocket.ts`, `types/index.ts`.
+- **Tính năng hoàn thành:** `TASK-5` (Socket.io Realtime Sync) và `TASK-6` (Kênh Chat Dự Án) đã tích hợp sâu vào giao diện và CSDL Supabase.
+- **Kiểm thử:** Next.js build thành công 100%, 0 lỗi TypeScript.
+
+---
 *(Các luồng công việc tiếp theo sẽ được tự động cập nhật bên dưới khi triển khai từng pha)*

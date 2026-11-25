@@ -37,16 +37,16 @@ gantt
 
 ---
 
-### 🚀 PHA 2 & 3: THIẾT KẾ UI/UX & LẬP TRÌNH CODING (ĐANG THỰC HIỆN)
+### 🚀 PHA 2 & 3: THIẾT KẾ UI/UX & LẬP TRÌNH CODING (HOÀN THÀNH 90%)
 | Mã Task | Tên Công Việc | Ưu tiên | Rủi ro | Người làm | Trạng thái |
 | :---: | :--- | :---: | :---: | :---: | :---: |
 | **TASK-1** | Thiết kế CSDL 10 bảng chuẩn hóa | `BLOCKER` | `CRITICAL` | Dev A | ✅ **HOÀN THÀNH** |
 | **TASK-2** | Khởi tạo dự án Next.js 15 & Prisma ORM | `HIGH` | `MEDIUM` | Dev A | ✅ **HOÀN THÀNH** |
 | **TASK-3** | Xây dựng Bảng Kanban kéo thả chuẩn Jira | `HIGH` | `HIGH` | Dev A | ✅ **HOÀN THÀNH** |
 | **TASK-4** | Tích hợp Drawer trượt xem Task & Checklist | `MEDIUM` | `LOW` | Dev A | ✅ **HOÀN THÀNH** |
-| **TASK-5** | Cấu hình Socket.io đồng bộ realtime Kanban | `HIGH` | `HIGH` | Dev A | 🟡 **ĐANG LÀM** |
-| **TASK-6** | Xây dựng Kênh Chat dự án thời gian thực | `MEDIUM` | `MEDIUM` | Dev A | ⏳ **CHỜ LÀM** |
-| **TASK-7** | Thiết lập Hàng đợi gửi Email tự động | `MEDIUM` | `MEDIUM` | Dev A | ⏳ **CHỜ LÀM** |
+| **TASK-5** | Cấu hình Socket.io đồng bộ realtime Kanban | `HIGH` | `HIGH` | Dev A | ✅ **HOÀN THÀNH** |
+| **TASK-6** | Xây dựng Kênh Chat dự án thời gian thực | `MEDIUM` | `MEDIUM` | Dev A | ✅ **HOÀN THÀNH** |
+| **TASK-7** | Thiết lập Hàng đợi gửi Email tự động | `MEDIUM` | `MEDIUM` | Dev A | 🟡 **ĐANG LÀM** |
 
 ---
 

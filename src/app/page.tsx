@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { getKanbanData } from './actions/task-actions';
-import { KanbanBoard } from '@/components/kanban/KanbanBoard';
+import { WorkspaceView } from '@/components/layout/WorkspaceView';
 
 export const instant = false;
 
@@ -26,7 +26,7 @@ async function KanbanLoader() {
     );
   }
 
-  return <KanbanBoard initialProject={data.project} />;
+  return <WorkspaceView initialProject={data.project} />;
 }
 
 export default function HomePage() {
