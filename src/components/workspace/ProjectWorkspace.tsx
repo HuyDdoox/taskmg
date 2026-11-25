@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useSocket } from '@/hooks/useSocket';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getProjectPermissions, getRoleBadgeStyle, ProjectRole } from '@/lib/rbac';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { SummaryView } from './SummaryView';
 import { ListView } from './ListView';
 import { TimelineView } from './TimelineView';
@@ -223,23 +225,20 @@ export function ProjectWorkspace({
                 Spaces
               </Link>
               <ChevronRight className="w-3.5 h-3.5 opacity-50" />
-              <select
+              <CustomSelect
                 value={project.id}
-                onChange={(e) => router.push(`/projects/${e.target.value}`)}
-                className={`bg-transparent font-semibold text-xs focus:outline-none cursor-pointer ${
+                isDark={isDark}
+                minMenuWidth="min-w-[220px]"
+                onChange={(val) => router.push(`/projects/${val}`)}
+                buttonClassName={`px-1.5 py-0.5 border-transparent hover:border-[#38414A] bg-transparent font-semibold ${
                   isDark ? 'text-[#B6C2CF]' : 'text-gray-700'
                 }`}
-              >
-                {allProjects.map((p) => (
-                  <option
-                    key={p.id}
-                    value={p.id}
-                    className={isDark ? 'bg-[#22272B] text-white' : 'bg-white text-gray-900'}
-                  >
-                    {p.name} ({p.projectKey})
-                  </option>
-                ))}
-              </select>
+                options={allProjects.map((p) => ({
+                  value: p.id,
+                  label: p.name,
+                  subLabel: `Key: ${p.projectKey}`,
+                }))}
+              />
             </div>
 
             <div className="flex items-center gap-2.5">
@@ -288,6 +287,9 @@ export function ProjectWorkspace({
                 <Plus className="w-4 h-4" /> Tạo Task
               </button>
             )}
+
+            {/* Notification Bell */}
+            <NotificationBell isDark={isDark} />
 
             {/* Dark/Light Toggle */}
             <button

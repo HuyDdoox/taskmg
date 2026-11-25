@@ -1,0 +1,99 @@
+import nodemailer from 'nodemailer';
+
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://taskmg-ten.vercel.app';
+
+export function isMailerConfigured(): boolean {
+  return Boolean(SMTP_USER && SMTP_PASS);
+}
+
+function createTransporter() {
+  if (!SMTP_USER || !SMTP_PASS) return null;
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  });
+}
+
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<{ sent: boolean; reason?: string }> {
+  const transporter = createTransporter();
+  if (!transporter) {
+    console.warn(`[Mailer] SMTP chưa cấu hình (thiếu SMTP_USER / SMTP_PASS). Bỏ qua gửi tới ${options.to}`);
+    return { sent: false, reason: 'SMTP chưa được cấu hình (cần thêm SMTP_USER và SMTP_PASS trên Vercel)' };
+  }
+
+  try {
+    await transporter.sendMail({
+      from: `"TaskMG Workspace" <${SMTP_USER}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+    return { sent: true };
+  } catch (error: any) {
+    console.error('[Mailer] Lỗi gửi email:', error?.message || error);
+    return { sent: false, reason: error?.message || 'Lỗi kết nối máy chủ Gmail SMTP' };
+  }
+}
+
+export async function sendOtpEmail(to: string, fullName: string, otp: string) {
+  return sendEmail({
+    to,
+    subject: `[TaskMG] Mã xác nhận Gmail của bạn: ${otp}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #1D2125; color: #DEE4EA; padding: 28px; border-radius: 12px; border: 1px solid #2C333A;">
+        <h2 style="margin: 0 0 12px; color: #579DFF;">Xác nhận địa chỉ Gmail</h2>
+        <p style="font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
+          Xin chào <strong>${fullName}</strong>,<br/>
+          Vui lòng nhập mã OTP 6 số bên dưới để hoàn tất đăng ký tài khoản trên <strong>TaskMG Workspace</strong>:
+        </p>
+        <div style="background: #22272B; border: 1px dashed #579DFF; border-radius: 10px; padding: 18px; text-align: center; margin: 20px 0;">
+          <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #FFFFFF; font-family: monospace;">${otp}</span>
+        </div>
+        <p style="font-size: 12px; color: #8C9BAB; margin: 0;">
+          Mã có hiệu lực trong <strong>10 phút</strong>. Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendNotificationEmail(params: {
+  to: string;
+  recipientName: string;
+  title: string;
+  message: string;
+  projectId?: string | null;
+}) {
+  const link = params.projectId ? `${APP_URL}/projects/${params.projectId}` : APP_URL;
+  return sendEmail({
+    to: params.to,
+    subject: `[TaskMG] ${params.title}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #1D2125; color: #DEE4EA; padding: 28px; border-radius: 12px; border: 1px solid #2C333A;">
+        <div style="font-size: 12px; color: #579DFF; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+          TaskMG Notification
+        </div>
+        <h2 style="margin: 0 0 12px; color: #FFFFFF; font-size: 18px;">${params.title}</h2>
+        <p style="font-size: 14px; line-height: 1.6; color: #B6C2CF; margin: 0 0 20px;">
+          Xin chào <strong>${params.recipientName}</strong>,<br/><br/>
+          ${params.message}
+        </p>
+        <a href="${link}" style="display: inline-block; background: #0C66E4; color: #FFFFFF; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 13px;">
+          Mở trên TaskMG Workspace →
+        </a>
+        <p style="font-size: 11px; color: #6B778C; margin-top: 24px; border-top: 1px solid #2C333A; padding-top: 12px;">
+          Bạn có thể bật/tắt nhận thông báo qua Gmail ngay tại biểu tượng Chuông 🔔 trên thanh Header.
+        </p>
+      </div>
+    `,
+  });
+}

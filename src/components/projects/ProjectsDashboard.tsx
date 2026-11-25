@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createProject, deleteProject } from '@/app/actions/project-actions';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getRoleBadgeStyle } from '@/lib/rbac';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import {
   FolderKanban,
   Plus,
@@ -184,6 +185,8 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
             </div>
             <span className="font-semibold max-w-[140px] truncate">{currentUser.fullName}</span>
           </div>
+
+          <NotificationBell isDark={isDark} />
 
           <button
             onClick={toggleTheme}

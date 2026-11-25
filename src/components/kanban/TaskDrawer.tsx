@@ -13,6 +13,7 @@ import {
   canUserToggleChecklist,
   isDoneColumnTitle,
 } from '@/lib/rbac';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import {
   X,
   Calendar,
@@ -332,22 +333,21 @@ export function TaskDrawer({
               {project?.columns && (
                 <div className="space-y-1">
                   <span className="opacity-70 font-medium">Trạng thái (Status):</span>
-                  <select
+                  <CustomSelect
                     value={task.columnId}
                     disabled={!canEditStatus}
-                    onChange={(e) => handleFieldUpdate({ columnId: e.target.value })}
-                    className={`${selectClass} disabled:opacity-60`}
-                  >
-                    {project.columns.map((c: any) => {
-                      const lockedDone = isDoneColumnTitle(c.title) && !canMoveDone;
-                      return (
-                        <option key={c.id} value={c.id} disabled={lockedDone}>
-                          {c.title}
-                          {lockedDone ? ' (Chỉ PM/Admin)' : ''}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    isDark={isDark}
+                    className="w-full"
+                    buttonClassName={`${selectClass} flex`}
+                    minMenuWidth="w-full"
+                    onChange={(val) => handleFieldUpdate({ columnId: val })}
+                    options={project.columns.map((c: any) => ({
+                      value: c.id,
+                      label: c.title,
+                      dotColor: c.colorHex,
+                      disabled: isDoneColumnTitle(c.title) && !canMoveDone,
+                    }))}
+                  />
                 </div>
               )}
 
@@ -355,52 +355,64 @@ export function TaskDrawer({
               {project?.members && (
                 <div className="space-y-1">
                   <span className="opacity-70 font-medium">Người làm (Assignee):</span>
-                  <select
+                  <CustomSelect
                     value={task.assigneeId || ''}
                     disabled={!canAssign}
-                    onChange={(e) => handleFieldUpdate({ assigneeId: e.target.value || null })}
-                    className={`${selectClass} disabled:opacity-60`}
-                  >
-                    <option value="">Unassigned</option>
-                    {project.members.map((m: any) => (
-                      <option key={m.user.id} value={m.user.id}>
-                        {m.user.fullName}
-                      </option>
-                    ))}
-                  </select>
+                    isDark={isDark}
+                    className="w-full"
+                    buttonClassName={`${selectClass} flex`}
+                    minMenuWidth="w-full"
+                    onChange={(val) => handleFieldUpdate({ assigneeId: val || null })}
+                    options={[
+                      { value: '', label: 'Unassigned' },
+                      ...project.members.map((m: any) => ({
+                        value: m.user.id,
+                        label: m.user.fullName,
+                        subLabel: m.role,
+                      })),
+                    ]}
+                  />
                 </div>
               )}
 
               {/* Priority */}
               <div className="space-y-1">
                 <span className="opacity-70 font-medium">Độ ưu tiên (Priority):</span>
-                <select
+                <CustomSelect
                   value={task.priority}
                   disabled={!canEditMeta}
-                  onChange={(e) => handleFieldUpdate({ priority: e.target.value })}
-                  className={`${selectClass} disabled:opacity-60`}
-                >
-                  <option value="BLOCKER">Highest / Blocker</option>
-                  <option value="HIGH">High</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="LOW">Low</option>
-                </select>
+                  isDark={isDark}
+                  className="w-full"
+                  buttonClassName={`${selectClass} flex`}
+                  minMenuWidth="w-full"
+                  onChange={(val) => handleFieldUpdate({ priority: val })}
+                  options={[
+                    { value: 'BLOCKER', label: 'Highest / Blocker', dotColor: '#EF4444' },
+                    { value: 'HIGH', label: 'High', dotColor: '#F97316' },
+                    { value: 'MEDIUM', label: 'Medium', dotColor: '#F59E0B' },
+                    { value: 'LOW', label: 'Low', dotColor: '#38BDF8' },
+                  ]}
+                />
               </div>
 
               {/* Risk Level */}
               <div className="space-y-1">
                 <span className="opacity-70 font-medium">Mức Rủi Ro:</span>
-                <select
+                <CustomSelect
                   value={task.riskLevel}
                   disabled={!canEditMeta}
-                  onChange={(e) => handleFieldUpdate({ riskLevel: e.target.value })}
-                  className={`${selectClass} disabled:opacity-60`}
-                >
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                  <option value="CRITICAL">Critical</option>
-                </select>
+                  isDark={isDark}
+                  className="w-full"
+                  buttonClassName={`${selectClass} flex`}
+                  minMenuWidth="w-full"
+                  onChange={(val) => handleFieldUpdate({ riskLevel: val })}
+                  options={[
+                    { value: 'LOW', label: 'Low', dotColor: '#94A3B8' },
+                    { value: 'MEDIUM', label: 'Medium', dotColor: '#F59E0B' },
+                    { value: 'HIGH', label: 'High', dotColor: '#F97316' },
+                    { value: 'CRITICAL', label: 'Critical', dotColor: '#EF4444' },
+                  ]}
+                />
               </div>
 
               {/* Due Date */}

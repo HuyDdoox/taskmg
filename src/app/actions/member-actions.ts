@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { getProjectPermissions } from '@/lib/rbac';
 import { resolveUserProjectRole } from './project-actions';
+import { createAndDispatchNotifications } from './notification-actions';
 import { revalidatePath } from 'next/cache';
 
 export async function getAllUsers() {
@@ -89,7 +90,16 @@ export async function addProjectMember(data: {
         userId: targetUserId,
         role: safeRole,
       },
-      include: { user: true },
+      include: { user: true, project: true },
+    });
+
+    await createAndDispatchNotifications({
+      userIds: [targetUserId],
+      excludeUserId: currentUser.id,
+      projectId: data.projectId,
+      type: 'PROJECT_INVITED',
+      title: `Bạn được mời vào dự án [${member.project.projectKey}]`,
+      message: `${currentUser.fullName} đã thêm bạn vào dự án "${member.project.name}" với vai trò ${safeRole}.`,
     });
 
     revalidatePath(`/projects/${data.projectId}`);

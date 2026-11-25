@@ -7,6 +7,7 @@ import {
   canUserModifyTaskStatus,
   isDoneColumnTitle,
 } from '@/lib/rbac';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import {
   Search,
   Filter,
@@ -390,20 +391,18 @@ export function ListView({
           {/* Group By Dropdown */}
           <div className="inline-flex items-center gap-1.5">
             <Layers className={`w-3.5 h-3.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`} />
-            <select
+            <CustomSelect
               value={groupBy}
-              onChange={(e) => setGroupBy(e.target.value as any)}
-              className={`px-2.5 py-1.5 rounded-md border text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#579DFF] cursor-pointer ${
-                isDark
-                  ? 'bg-[#22272B] border-[#38414A] text-[#B6C2CF]'
-                  : 'bg-white border-gray-300 text-gray-700'
-              }`}
-            >
-              <option value="NONE">Group: None</option>
-              <option value="STATUS">Group: Status</option>
-              <option value="PRIORITY">Group: Priority</option>
-              <option value="ASSIGNEE">Group: Assignee</option>
-            </select>
+              isDark={isDark}
+              onChange={(val) => setGroupBy(val as any)}
+              minMenuWidth="min-w-[165px]"
+              options={[
+                { value: 'NONE', label: 'Group: None' },
+                { value: 'STATUS', label: 'Group: Status' },
+                { value: 'PRIORITY', label: 'Group: Priority' },
+                { value: 'ASSIGNEE', label: 'Group: Assignee' },
+              ]}
+            />
           </div>
         </div>
 
@@ -612,45 +611,51 @@ export function ListView({
                             )}
                           </td>
 
-                          {/* Assignee (inline select) */}
-                          <td className="py-2.5 px-3">
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${getUserColor(
-                                  task.assignee?.id
-                                )}`}
-                              >
-                                {getInitials(task.assignee?.fullName)}
-                              </div>
-                              <select
-                                value={task.assigneeId || ''}
-                                disabled={!permissions.canAssignOthers}
-                                onChange={(e) =>
-                                  handleInlineFieldUpdate(task, {
-                                    assigneeId: e.target.value || null,
-                                  })
-                                }
-                                className={`bg-transparent text-xs font-medium focus:outline-none max-w-[120px] truncate disabled:opacity-75 disabled:cursor-default ${
-                                  permissions.canAssignOthers ? 'cursor-pointer' : ''
-                                } ${isDark ? 'text-[#B6C2CF]' : 'text-gray-800'}`}
-                              >
-                                <option
-                                  value=""
-                                  className={isDark ? 'bg-[#22272B]' : 'bg-white'}
-                                >
-                                  Unassigned
-                                </option>
-                                {(project.members || []).map((m: any) => (
-                                  <option
-                                    key={m.user.id}
-                                    value={m.user.id}
-                                    className={isDark ? 'bg-[#22272B]' : 'bg-white'}
+                          {/* Assignee (CustomSelect) */}
+                          <td className="py-2 px-3">
+                            <CustomSelect
+                              value={task.assigneeId || ''}
+                              disabled={!permissions.canAssignOthers}
+                              isDark={isDark}
+                              minMenuWidth="min-w-[190px]"
+                              onChange={(val) =>
+                                handleInlineFieldUpdate(task, { assigneeId: val || null })
+                              }
+                              buttonClassName={`px-2 py-1 border-transparent hover:border-[#38414A] bg-transparent ${
+                                isDark ? 'text-[#B6C2CF]' : 'text-gray-800'
+                              }`}
+                              renderValue={() => (
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className={`w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0 ${getUserColor(
+                                      task.assignee?.id
+                                    )}`}
                                   >
-                                    {m.user.fullName}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                                    {getInitials(task.assignee?.fullName)}
+                                  </span>
+                                  <span className="truncate max-w-[105px]">
+                                    {task.assignee?.fullName || 'Unassigned'}
+                                  </span>
+                                </span>
+                              )}
+                              options={[
+                                { value: '', label: 'Unassigned' },
+                                ...(project.members || []).map((m: any) => ({
+                                  value: m.user.id,
+                                  label: m.user.fullName,
+                                  subLabel: m.role,
+                                  icon: (
+                                    <span
+                                      className={`w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center ${getUserColor(
+                                        m.user.id
+                                      )}`}
+                                    >
+                                      {getInitials(m.user.fullName)}
+                                    </span>
+                                  ),
+                                })),
+                              ]}
+                            />
                           </td>
 
                           {/* Reporter */}
@@ -669,30 +674,45 @@ export function ListView({
                             </div>
                           </td>
 
-                          {/* Priority (inline select) */}
-                          <td className="py-2.5 px-3 whitespace-nowrap">
-                            <div className="relative inline-flex items-center">
-                              {renderPriorityBadge(task.priority)}
-                              {permissions.canEditTaskMeta && (
-                                <select
-                                  value={task.priority}
-                                  onChange={(e) =>
-                                    handleInlineFieldUpdate(task, { priority: e.target.value })
-                                  }
-                                  aria-label="Đổi độ ưu tiên"
-                                  className="absolute inset-0 opacity-0 cursor-pointer"
-                                >
-                                  <option value="BLOCKER">Highest</option>
-                                  <option value="HIGH">High</option>
-                                  <option value="MEDIUM">Medium</option>
-                                  <option value="LOW">Low</option>
-                                </select>
-                              )}
-                            </div>
+                          {/* Priority (CustomSelect) */}
+                          <td className="py-2 px-3 whitespace-nowrap">
+                            <CustomSelect
+                              value={task.priority}
+                              disabled={!permissions.canEditTaskMeta}
+                              isDark={isDark}
+                              minMenuWidth="min-w-[155px]"
+                              onChange={(val) =>
+                                handleInlineFieldUpdate(task, { priority: val })
+                              }
+                              buttonClassName="px-2 py-1 border-transparent hover:border-[#38414A] bg-transparent"
+                              renderValue={() => renderPriorityBadge(task.priority)}
+                              options={[
+                                {
+                                  value: 'BLOCKER',
+                                  label: 'Highest',
+                                  icon: <Flame className="w-3.5 h-3.5 text-red-400" />,
+                                },
+                                {
+                                  value: 'HIGH',
+                                  label: 'High',
+                                  icon: <ArrowUp className="w-3.5 h-3.5 text-orange-400" />,
+                                },
+                                {
+                                  value: 'MEDIUM',
+                                  label: 'Medium',
+                                  icon: <Minus className="w-3.5 h-3.5 text-amber-400" />,
+                                },
+                                {
+                                  value: 'LOW',
+                                  label: 'Low',
+                                  icon: <ArrowDown className="w-3.5 h-3.5 text-sky-400" />,
+                                },
+                              ]}
+                            />
                           </td>
 
-                          {/* Status (inline pill dropdown like Jira!) */}
-                          <td className="py-2.5 px-3 whitespace-nowrap">
+                          {/* Status (CustomSelect pill chuẩn Jira!) */}
+                          <td className="py-2 px-3 whitespace-nowrap">
                             {(() => {
                               const canChangeStatus = canUserModifyTaskStatus(
                                 permissions.role,
@@ -700,36 +720,31 @@ export function ListView({
                                 currentUser?.id
                               );
                               return (
-                                <select
+                                <CustomSelect
                                   value={task.columnId}
                                   disabled={!canChangeStatus}
-                                  onChange={(e) =>
-                                    handleInlineFieldUpdate(task, { columnId: e.target.value })
+                                  isDark={isDark}
+                                  menuAlign="right"
+                                  minMenuWidth="min-w-[200px]"
+                                  onChange={(val) =>
+                                    handleInlineFieldUpdate(task, { columnId: val })
                                   }
-                                  className={`px-2.5 py-1 rounded text-[11px] font-bold border focus:outline-none disabled:opacity-70 disabled:cursor-default ${
-                                    canChangeStatus ? 'cursor-pointer' : ''
-                                  } ${getStatusBadgeClass(statusTitle, isDark)}`}
-                                >
-                                  {project.columns.map((c: any) => {
+                                  buttonClassName={`px-2.5 py-1 rounded text-[11px] font-bold border ${getStatusBadgeClass(
+                                    statusTitle,
+                                    isDark
+                                  )}`}
+                                  options={project.columns.map((c: any) => {
                                     const lockedDone =
                                       isDoneColumnTitle(c.title) && !permissions.canMoveToDone;
-                                    return (
-                                      <option
-                                        key={c.id}
-                                        value={c.id}
-                                        disabled={lockedDone}
-                                        className={
-                                          isDark
-                                            ? 'bg-[#22272B] text-white'
-                                            : 'bg-white text-gray-900'
-                                        }
-                                      >
-                                        {c.title}
-                                        {lockedDone ? ' (Chỉ PM/Admin)' : ''}
-                                      </option>
-                                    );
+                                    return {
+                                      value: c.id,
+                                      label: c.title,
+                                      disabled: lockedDone,
+                                      dotColor: c.colorHex,
+                                      badgeClass: getStatusBadgeClass(c.title, isDark),
+                                    };
                                   })}
-                                </select>
+                                />
                               );
                             })()}
                           </td>

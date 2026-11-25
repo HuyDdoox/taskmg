@@ -9,6 +9,7 @@ import {
   isDoneColumnTitle,
 } from '@/lib/rbac';
 import { resolveUserProjectRole } from './project-actions';
+import { createAndDispatchNotifications } from './notification-actions';
 import { revalidatePath } from 'next/cache';
 
 export async function updateTaskColumn(taskId: string, targetColumnId: string, newOrderIndex: number) {
@@ -83,6 +84,34 @@ export async function updateTaskColumn(taskId: string, targetColumnId: string, n
           }),
         },
       });
+
+      // Tự động bắn thông báo 🔔 + Email khi đổi trạng thái
+      const lowerTitle = updatedTask.column.title.toLowerCase();
+      if (lowerTitle.includes('review') || lowerTitle.includes('duyệt')) {
+        const managers = await prisma.projectMember.findMany({
+          where: { projectId: currentTask.projectId, role: { in: ['ADMIN', 'PM'] } },
+          select: { userId: true },
+        });
+        await createAndDispatchNotifications({
+          userIds: managers.map((m) => m.userId),
+          excludeUserId: user.id,
+          projectId: currentTask.projectId,
+          taskId,
+          type: 'STATUS_CHANGED',
+          title: `[${updatedTask.issueKey}] Chờ duyệt (In Review)`,
+          message: `${user.fullName} đã chuyển công việc "${updatedTask.title}" sang "${updatedTask.column.title}" để chờ bạn kiểm tra.`,
+        });
+      } else if (updatedTask.assigneeId) {
+        await createAndDispatchNotifications({
+          userIds: [updatedTask.assigneeId],
+          excludeUserId: user.id,
+          projectId: currentTask.projectId,
+          taskId,
+          type: 'STATUS_CHANGED',
+          title: `[${updatedTask.issueKey}] Đổi trạng thái -> ${updatedTask.column.title}`,
+          message: `${user.fullName} đã chuyển công việc "${updatedTask.title}" từ "${currentTask.column.title}" sang "${updatedTask.column.title}".`,
+        });
+      }
     }
 
     revalidatePath(`/projects/${currentTask.projectId}`);
@@ -188,6 +217,60 @@ export async function updateTaskFields(
         },
       },
     });
+
+    // Bắn thông báo 🔔 + Email khi giao việc / đổi trạng thái / đổi hạn chót
+    if (data.assigneeId && data.assigneeId !== existingTask.assigneeId) {
+      await createAndDispatchNotifications({
+        userIds: [data.assigneeId],
+        excludeUserId: user.id,
+        projectId,
+        taskId,
+        type: 'TASK_ASSIGNED',
+        title: `[${updatedTask.issueKey}] Bạn được giao công việc mới`,
+        message: `${user.fullName} đã giao công việc "${updatedTask.title}" cho bạn.`,
+      });
+    } else if (data.columnId && data.columnId !== existingTask.columnId) {
+      const lowerTitle = updatedTask.column.title.toLowerCase();
+      if (lowerTitle.includes('review') || lowerTitle.includes('duyệt')) {
+        const managers = await prisma.projectMember.findMany({
+          where: { projectId, role: { in: ['ADMIN', 'PM'] } },
+          select: { userId: true },
+        });
+        await createAndDispatchNotifications({
+          userIds: managers.map((m) => m.userId),
+          excludeUserId: user.id,
+          projectId,
+          taskId,
+          type: 'STATUS_CHANGED',
+          title: `[${updatedTask.issueKey}] Chờ duyệt (In Review)`,
+          message: `${user.fullName} đã chuyển "${updatedTask.title}" sang "${updatedTask.column.title}".`,
+        });
+      } else if (updatedTask.assigneeId) {
+        await createAndDispatchNotifications({
+          userIds: [updatedTask.assigneeId],
+          excludeUserId: user.id,
+          projectId,
+          taskId,
+          type: 'STATUS_CHANGED',
+          title: `[${updatedTask.issueKey}] Cập nhật trạng thái -> ${updatedTask.column.title}`,
+          message: `${user.fullName} đã chuyển "${updatedTask.title}" sang "${updatedTask.column.title}".`,
+        });
+      }
+    } else if (data.dueDate !== undefined && updatedTask.assigneeId) {
+      await createAndDispatchNotifications({
+        userIds: [updatedTask.assigneeId],
+        excludeUserId: user.id,
+        projectId,
+        taskId,
+        type: 'DEADLINE_CHANGED',
+        title: `[${updatedTask.issueKey}] Thay đổi hạn chót`,
+        message: `${user.fullName} đã cập nhật hạn chót công việc "${updatedTask.title}" thành ${
+          updatedTask.dueDate
+            ? new Date(updatedTask.dueDate).toLocaleDateString('vi-VN')
+            : 'Không có hạn'
+        }.`,
+      });
+    }
 
     revalidatePath(`/projects/${projectId}`);
     revalidatePath('/');
@@ -361,6 +444,18 @@ export async function createQuickTask(data: {
         detailsJson: JSON.stringify({ message: `Đã tạo task mới ${issueKey}` }),
       },
     });
+
+    if (newTask.assigneeId && newTask.assigneeId !== user.id) {
+      await createAndDispatchNotifications({
+        userIds: [newTask.assigneeId],
+        excludeUserId: user.id,
+        projectId: project.id,
+        taskId: newTask.id,
+        type: 'TASK_ASSIGNED',
+        title: `[${issueKey}] Bạn được giao công việc mới`,
+        message: `${user.fullName} đã tạo và giao công việc "${newTask.title}" cho bạn trong dự án "${project.name}".`,
+      });
+    }
 
     revalidatePath(`/projects/${project.id}`);
     revalidatePath('/');

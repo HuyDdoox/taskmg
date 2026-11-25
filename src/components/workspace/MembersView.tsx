@@ -6,7 +6,8 @@ import {
   updateProjectMemberRole,
   removeProjectMember,
 } from '@/app/actions/member-actions';
-import { ProjectPermissions } from '@/lib/rbac';
+import { ProjectPermissions, getRoleBadgeStyle } from '@/lib/rbac';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 import { UserPlus, Trash2, Shield, X, Mail, Users } from 'lucide-react';
 
 interface MembersViewProps {
@@ -164,23 +165,24 @@ export function MembersView({
 
                   <div className="flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-[#579DFF]" />
-                    <select
+                    <CustomSelect
                       value={m.role}
                       disabled={isOwner || !permissions.canManageMemberRoles}
-                      onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                      className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none disabled:opacity-60 ${
-                        !isOwner && permissions.canManageMemberRoles ? 'cursor-pointer' : 'cursor-default'
-                      } ${
+                      isDark={isDark}
+                      menuAlign="right"
+                      minMenuWidth="min-w-[140px]"
+                      onChange={(val) => handleRoleChange(m.id, val)}
+                      buttonClassName={`px-2.5 py-1 rounded-lg border text-xs font-bold ${getRoleBadgeStyle(
+                        m.role,
                         isDark
-                          ? 'bg-[#1D2125] border-[#38414A] text-white'
-                          : 'bg-white border-gray-300 text-gray-800'
-                      }`}
-                    >
-                      <option value="ADMIN">ADMIN</option>
-                      <option value="PM">PM</option>
-                      <option value="MEMBER">MEMBER</option>
-                      <option value="VIEWER">VIEWER</option>
-                    </select>
+                      )}`}
+                      options={[
+                        { value: 'ADMIN', label: 'ADMIN', badgeClass: getRoleBadgeStyle('ADMIN', isDark) },
+                        { value: 'PM', label: 'PM', badgeClass: getRoleBadgeStyle('PM', isDark) },
+                        { value: 'MEMBER', label: 'MEMBER', badgeClass: getRoleBadgeStyle('MEMBER', isDark) },
+                        { value: 'VIEWER', label: 'VIEWER', badgeClass: getRoleBadgeStyle('VIEWER', isDark) },
+                      ]}
+                    />
                   </div>
 
                   {!isOwner && permissions.canManageMemberRoles && (

@@ -9,19 +9,37 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(uuid())
-  email         String          @unique
-  fullName      String
-  passwordHash  String
-  avatarUrl     String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  activityLogs  ActivityLog[]
-  messages      Message[]
-  ownedProjects Project[]       @relation("ProjectOwner")
-  memberships   ProjectMember[]
-  assignedTasks Task[]          @relation("TaskAssignee")
-  reportedTasks Task[]          @relation("TaskReporter")
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  fullName           String
+  passwordHash       String
+  avatarUrl          String?
+  emailVerified      Boolean         @default(true)
+  verifyOtp          String?
+  verifyOtpExp       DateTime?
+  emailNotifyEnabled Boolean         @default(true)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  activityLogs       ActivityLog[]
+  messages           Message[]
+  ownedProjects      Project[]       @relation("ProjectOwner")
+  memberships        ProjectMember[]
+  assignedTasks      Task[]          @relation("TaskAssignee")
+  reportedTasks      Task[]          @relation("TaskReporter")
+  notifications      Notification[]
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String?
+  taskId    String?
+  type      String   @default("SYSTEM")
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Project {
