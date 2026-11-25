@@ -53,9 +53,9 @@ export async function getKanbanData() {
     }
 
     return { success: true, project };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Lỗi lấy dữ liệu Kanban:', error);
-    return { success: false, error: 'Không thể tải dữ liệu Kanban' };
+    return { success: false, error: `${error?.name || 'Error'}: ${error?.message || String(error)}` };
   }
 }
 

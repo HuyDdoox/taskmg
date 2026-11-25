@@ -16,8 +16,13 @@ async function KanbanLoader() {
             ⚠️
           </div>
           <h2 className="text-base font-bold text-gray-900">Không tìm thấy dữ liệu Dự án</h2>
+          {data.error && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs font-mono text-red-700 text-left overflow-auto max-h-40 break-words">
+              {data.error}
+            </div>
+          )}
           <p className="text-xs text-gray-500">
-            Dữ liệu dự án chưa được khởi tạo trong CSDL. Vui lòng chạy lệnh nạp dữ liệu:
+            Dữ liệu dự án chưa được khởi tạo trong CSDL hoặc lỗi kết nối.
           </p>
           <code className="block p-2 rounded bg-gray-100 text-xs font-mono text-gray-800">
             npm run db:seed
