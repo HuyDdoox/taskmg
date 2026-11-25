@@ -2,7 +2,8 @@ import { Suspense } from 'react';
 import { getKanbanData } from './actions/task-actions';
 import { WorkspaceView } from '@/components/layout/WorkspaceView';
 
-export const instant = false;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function KanbanLoader() {
   const data = await getKanbanData();

@@ -5,44 +5,52 @@ import { revalidatePath } from 'next/cache';
 
 export async function getKanbanData() {
   try {
-    const project = await prisma.project.findFirst({
-      where: { projectKey: 'TASK' },
-      include: {
-        owner: true,
-        milestones: true,
-        channels: {
-          include: {
-            messages: {
-              orderBy: { createdAt: 'asc' },
-              include: { sender: true },
-            },
+    const projectInclude = {
+      owner: true,
+      milestones: true,
+      channels: {
+        include: {
+          messages: {
+            orderBy: { createdAt: 'asc' as const },
+            include: { sender: true },
           },
         },
-        columns: {
-          orderBy: { position: 'asc' },
-          include: {
-            tasks: {
-              orderBy: { orderIndex: 'asc' },
-              include: {
-                assignee: true,
-                reporter: true,
-                milestone: true,
-                checklists: {
-                  orderBy: { position: 'asc' },
-                },
-                activityLogs: {
-                  orderBy: { createdAt: 'desc' },
-                  include: { user: true },
-                },
+      },
+      columns: {
+        orderBy: { position: 'asc' as const },
+        include: {
+          tasks: {
+            orderBy: { orderIndex: 'asc' as const },
+            include: {
+              assignee: true,
+              reporter: true,
+              milestone: true,
+              checklists: {
+                orderBy: { position: 'asc' as const },
+              },
+              activityLogs: {
+                orderBy: { createdAt: 'desc' as const },
+                include: { user: true },
               },
             },
           },
         },
-        members: {
-          include: { user: true },
-        },
       },
+      members: {
+        include: { user: true },
+      },
+    };
+
+    let project = await prisma.project.findFirst({
+      where: { projectKey: 'TASK' },
+      include: projectInclude,
     });
+
+    if (!project) {
+      project = await prisma.project.findFirst({
+        include: projectInclude,
+      });
+    }
 
     return { success: true, project };
   } catch (error) {
