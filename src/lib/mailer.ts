@@ -1,20 +1,25 @@
 import nodemailer from 'nodemailer';
 
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://taskmg-ten.vercel.app';
+function getSmtpConfig() {
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.replace(/\s+/g, '');
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taskmg-ten.vercel.app';
+  return { user, pass, appUrl };
+}
 
 export function isMailerConfigured(): boolean {
-  return Boolean(SMTP_USER && SMTP_PASS);
+  const { user, pass } = getSmtpConfig();
+  return Boolean(user && pass);
 }
 
 function createTransporter() {
-  if (!SMTP_USER || !SMTP_PASS) return null;
+  const { user, pass } = getSmtpConfig();
+  if (!user || !pass) return null;
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS,
+      user,
+      pass,
     },
   });
 }
@@ -24,15 +29,16 @@ export async function sendEmail(options: {
   subject: string;
   html: string;
 }): Promise<{ sent: boolean; reason?: string }> {
+  const { user } = getSmtpConfig();
   const transporter = createTransporter();
-  if (!transporter) {
+  if (!transporter || !user) {
     console.warn(`[Mailer] SMTP chưa cấu hình (thiếu SMTP_USER / SMTP_PASS). Bỏ qua gửi tới ${options.to}`);
     return { sent: false, reason: 'SMTP chưa được cấu hình (cần thêm SMTP_USER và SMTP_PASS trên Vercel)' };
   }
 
   try {
     await transporter.sendMail({
-      from: `"TaskMG Workspace" <${SMTP_USER}>`,
+      from: `"TaskMG Workspace" <${user}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -73,7 +79,8 @@ export async function sendNotificationEmail(params: {
   message: string;
   projectId?: string | null;
 }) {
-  const link = params.projectId ? `${APP_URL}/projects/${params.projectId}` : APP_URL;
+  const { appUrl } = getSmtpConfig();
+  const link = params.projectId ? `${appUrl}/projects/${params.projectId}` : appUrl;
   return sendEmail({
     to: params.to,
     subject: `[TaskMG] ${params.title}`,
@@ -107,7 +114,8 @@ export async function sendInviteSetPasswordEmail(params: {
   role: string;
   inviteToken: string;
 }) {
-  const inviteUrl = `${APP_URL}/accept-invite?token=${params.inviteToken}`;
+  const { appUrl } = getSmtpConfig();
+  const inviteUrl = `${appUrl}/accept-invite?token=${params.inviteToken}`;
   return sendEmail({
     to: params.to,
     subject: `[TaskMG] ${params.inviterName} mời bạn tham gia dự án [${params.projectKey}] ${params.projectName}`,
