@@ -232,10 +232,26 @@ export function ListView({
   }, [filteredTasks, groupBy, project.columns]);
 
   const handleInlineFieldUpdate = async (task: any, patch: any) => {
+    // Optimistic UI: cập nhật ngay 0ms trên màn hình
+    const optimisticTask = { ...task, ...patch };
+    if (patch.assigneeId !== undefined) {
+      const foundMember = (project.members || []).find(
+        (m: any) => m.user.id === patch.assigneeId
+      );
+      optimisticTask.assignee = foundMember ? foundMember.user : null;
+    }
+    if (patch.columnId !== undefined) {
+      const foundCol = (project.columns || []).find((c: any) => c.id === patch.columnId);
+      if (foundCol) optimisticTask.column = foundCol;
+    }
+    onTaskUpdated(optimisticTask);
+
     const res = await updateTaskFields(task.id, project.id, patch);
     if (res.success && res.task) {
       onTaskUpdated(res.task);
     } else if (res.error) {
+      // Rollback nếu bị chặn quyền / lỗi
+      onTaskUpdated(task);
       alert(res.error);
     }
   };

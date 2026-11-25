@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSocket } from '@/hooks/useSocket';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getProjectPermissions, getRoleBadgeStyle, ProjectRole } from '@/lib/rbac';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
@@ -72,25 +71,6 @@ export function ProjectWorkspace({
     router.push('/login');
     router.refresh();
   };
-
-  const { socket } = useSocket(project?.id);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleRemoteTaskMoved = (data: {
-      taskId: string;
-      targetColumnId: string;
-      orderIndex: number;
-    }) => {
-      handleTaskMovedState(data.taskId, data.targetColumnId, data.orderIndex);
-    };
-
-    socket.on('task_moved', handleRemoteTaskMoved);
-    return () => {
-      socket.off('task_moved', handleRemoteTaskMoved);
-    };
-  }, [socket]);
 
   const allTasks = useMemo(
     () => (project.columns || []).flatMap((c: any) => c.tasks || []),
@@ -367,7 +347,6 @@ export function ProjectWorkspace({
             project={project}
             currentUser={currentUser}
             permissions={permissions}
-            socket={socket}
             isDark={isDark}
             onSelectTask={(task) => setSelectedTask(task)}
             onOpenCreateModal={(colId) => {

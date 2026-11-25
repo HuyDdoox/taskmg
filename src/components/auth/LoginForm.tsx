@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   loginAction,
@@ -121,12 +122,16 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
   return (
     <div className="min-h-screen bg-[#1D2125] text-[#B6C2CF] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        {/* Branding */}
+        {/* Branding (Click to go Home) */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0C66E4] to-sky-400 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-900/30">
-            <FolderKanban className="w-6 h-6" />
-          </div>
-          <h1 className="text-xl font-bold text-white">TaskMG Workspace</h1>
+          <Link href="/" className="inline-block group">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0C66E4] to-sky-400 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-900/30 group-hover:scale-105 transition-transform">
+              <FolderKanban className="w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-bold text-white mt-2 group-hover:text-[#579DFF] transition-colors">
+              TaskMG Workspace
+            </h1>
+          </Link>
           <p className="text-xs text-[#8C9BAB]">
             Hệ thống quản lý Dự án & Công việc chuẩn Jira với Phân quyền RBAC
           </p>

@@ -64,7 +64,7 @@ const PREVIEW_TASKS = [
   },
 ];
 
-export function LandingPage({ currentUser }: LandingPageProps) {
+export function LandingPage() {
   const [previewTab, setPreviewTab] = useState<'list' | 'board'>('list');
 
   return (

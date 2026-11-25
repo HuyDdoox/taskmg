@@ -32,27 +32,30 @@ export async function createAndDispatchNotifications(params: {
       })),
     });
 
-    // 2. Gửi Email bất đồng bộ cho những người bật nhận thông báo qua Gmail
+    // 2. Gửi Email chạy ngầm (non-blocking) để không làm chậm thao tác UI
     if (isMailerConfigured()) {
-      const recipients = await prisma.user.findMany({
-        where: {
-          id: { in: uniqueIds },
-          emailNotifyEnabled: true,
-        },
-        select: { email: true, fullName: true },
-      });
-
-      await Promise.allSettled(
-        recipients.map((r) =>
-          sendNotificationEmail({
-            to: r.email,
-            recipientName: r.fullName,
-            title: params.title,
-            message: params.message,
-            projectId: params.projectId,
-          })
+      prisma.user
+        .findMany({
+          where: {
+            id: { in: uniqueIds },
+            emailNotifyEnabled: true,
+          },
+          select: { email: true, fullName: true },
+        })
+        .then((recipients) =>
+          Promise.allSettled(
+            recipients.map((r) =>
+              sendNotificationEmail({
+                to: r.email,
+                recipientName: r.fullName,
+                title: params.title,
+                message: params.message,
+                projectId: params.projectId,
+              })
+            )
+          )
         )
-      );
+        .catch((err) => console.error('[Mailer background]', err));
     }
 
     return { success: true, count: uniqueIds.length };

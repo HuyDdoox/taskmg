@@ -158,19 +158,19 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
           isDark ? 'bg-[#1D2125] border-[#2C333A]' : 'bg-white border-gray-200'
         }`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0C66E4] flex items-center justify-center text-white shadow-sm">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 rounded-lg bg-[#0C66E4] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
             <FolderKanban className="w-4 h-4" />
           </div>
           <div>
-            <div className={`font-bold text-sm leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <div className={`font-bold text-sm leading-tight group-hover:text-[#579DFF] transition-colors ${isDark ? 'text-white' : 'text-gray-900'}`}>
               TaskMG Spaces
             </div>
             <div className={`text-[11px] ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
               Quản lý Dự án & Công việc chuẩn Jira
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
           <div

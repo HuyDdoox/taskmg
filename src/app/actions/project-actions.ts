@@ -84,19 +84,35 @@ export async function getAllProjects() {
   }
 }
 
-export async function getProjectById(projectId: string) {
+export async function getProjectSwitcherList(userId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return { success: false, error: 'Chưa đăng nhập' };
-    }
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { userId } } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        projectKey: true,
+      },
+    });
+    return { success: true, projects };
+  } catch {
+    return { success: false, projects: [] };
+  }
+}
 
-    const userRole = await resolveUserProjectRole(projectId, user.id);
-    if (!userRole) {
-      return {
-        success: false,
-        error: 'Bạn không có quyền truy cập dự án này (Chưa được mời tham gia).',
-      };
+export async function getProjectById(projectId: string, knownUserId?: string) {
+  try {
+    let userId = knownUserId;
+    if (!userId) {
+      const user = await getCurrentUser();
+      if (!user) return { success: false, error: 'Chưa đăng nhập' };
+      userId = user.id;
     }
 
     const project = await prisma.project.findUnique({
@@ -120,6 +136,7 @@ export async function getProjectById(projectId: string) {
                   orderBy: { position: 'asc' },
                 },
                 activityLogs: {
+                  take: 10,
                   orderBy: { createdAt: 'desc' },
                   include: { user: true },
                 },
@@ -138,9 +155,102 @@ export async function getProjectById(projectId: string) {
       return { success: false, error: 'Không tìm thấy dự án' };
     }
 
+    const membership = project.members.find((m) => m.userId === userId);
+    const userRole: ProjectRole | null =
+      project.ownerId === userId ? 'ADMIN' : (membership?.role as ProjectRole) || null;
+
+    if (!userRole) {
+      return {
+        success: false,
+        error: 'Bạn không có quyền truy cập dự án này (Chưa được mời tham gia).',
+      };
+    }
+
     return { success: true, project, userRole };
   } catch (error: any) {
     console.error('Lỗi lấy chi tiết dự án:', error);
+    return {
+      success: false,
+      error: `${error?.name || 'Error'}: ${error?.message || String(error)}`,
+    };
+  }
+}
+
+export async function getProjectWorkspaceBundle(projectId: string, userId: string) {
+  try {
+    const [project, switcherProjects, allUsers] = await Promise.all([
+      prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+          owner: { select: { id: true, fullName: true, email: true, avatarUrl: true } },
+          milestones: { orderBy: { createdAt: 'asc' } },
+          columns: {
+            orderBy: { position: 'asc' },
+            include: {
+              tasks: {
+                orderBy: { orderIndex: 'asc' },
+                include: {
+                  assignee: { select: { id: true, fullName: true, email: true, avatarUrl: true } },
+                  reporter: { select: { id: true, fullName: true, email: true, avatarUrl: true } },
+                  milestone: { select: { id: true, title: true } },
+                  column: { select: { id: true, title: true, colorHex: true, position: true } },
+                  checklists: { orderBy: { position: 'asc' } },
+                  activityLogs: {
+                    take: 10,
+                    orderBy: { createdAt: 'desc' },
+                    include: { user: { select: { id: true, fullName: true } } },
+                  },
+                },
+              },
+            },
+          },
+          members: {
+            orderBy: { joinedAt: 'asc' },
+            include: { user: { select: { id: true, fullName: true, email: true, avatarUrl: true } } },
+          },
+        },
+      }),
+      prisma.project.findMany({
+        where: {
+          OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+        },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, name: true, projectKey: true },
+      }),
+      prisma.user.findMany({
+        orderBy: { fullName: 'asc' },
+        select: { id: true, fullName: true, email: true, avatarUrl: true },
+      }),
+    ]);
+
+    if (!project) {
+      return { success: false, error: 'Không tìm thấy dự án' };
+    }
+
+    const memberRecord = project.members.find((m) => m.userId === userId);
+    const userRole: ProjectRole | null =
+      project.ownerId === userId
+        ? 'ADMIN'
+        : memberRecord
+        ? (memberRecord.role as ProjectRole)
+        : null;
+
+    if (!userRole) {
+      return {
+        success: false,
+        error: 'Bạn không có quyền truy cập dự án này (Chưa được mời tham gia).',
+      };
+    }
+
+    return {
+      success: true,
+      project,
+      userRole,
+      allProjects: switcherProjects,
+      allUsers,
+    };
+  } catch (error: any) {
+    console.error('Lỗi tải dữ liệu dự án:', error);
     return {
       success: false,
       error: `${error?.name || 'Error'}: ${error?.message || String(error)}`,

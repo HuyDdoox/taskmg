@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
-import { getAllProjects, getProjectById } from '@/app/actions/project-actions';
+import { getProjectById, getProjectSwitcherList } from '@/app/actions/project-actions';
 import { getAllUsers } from '@/app/actions/member-actions';
 import { ProjectWorkspace } from '@/components/workspace/ProjectWorkspace';
 
@@ -15,9 +15,9 @@ async function ProjectLoader({ projectId }: { projectId: string }) {
     redirect('/login');
   }
 
-  const [projectRes, allProjectsRes, usersRes] = await Promise.all([
-    getProjectById(projectId),
-    getAllProjects(),
+  const [projectRes, switcherRes, usersRes] = await Promise.all([
+    getProjectById(projectId, currentUser.id),
+    getProjectSwitcherList(currentUser.id),
     getAllUsers(),
   ]);
 
@@ -44,7 +44,7 @@ async function ProjectLoader({ projectId }: { projectId: string }) {
   return (
     <ProjectWorkspace
       initialProject={projectRes.project}
-      allProjects={allProjectsRes.projects || []}
+      allProjects={switcherRes.projects || []}
       allUsers={usersRes.users || []}
       currentUser={currentUser}
       userRole={projectRes.userRole || 'VIEWER'}

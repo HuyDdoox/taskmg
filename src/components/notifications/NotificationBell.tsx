@@ -42,8 +42,6 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
 
   useEffect(() => {
     loadNotifications();
-    const timer = setInterval(loadNotifications, 25000);
-    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
