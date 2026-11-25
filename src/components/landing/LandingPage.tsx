@@ -98,38 +98,26 @@ export function LandingPage({ currentUser }: LandingPageProps) {
             </a>
           </nav>
 
-          {/* Auth Buttons (Mở tab mới khi bấm Đăng nhập / Đăng ký!) */}
+          {/* Auth Buttons (Luôn hiển thị Đăng nhập & Bắt đầu miễn phí, mở tab mới) */}
           <div className="flex items-center gap-2.5">
-            {currentUser ? (
-              <Link
-                href="/spaces"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-bold shadow-sm transition-all"
-              >
-                Vào Workspace ({currentUser.fullName.split(' ').slice(-1)[0]})
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            ) : (
-              <>
-                <a
-                  href="/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#38414A] bg-[#1D2125] hover:bg-[#282E33] text-[#DEE4EA] text-xs font-semibold transition-colors"
-                >
-                  Đăng nhập
-                  <ExternalLink className="w-3 h-3 opacity-70" />
-                </a>
-                <a
-                  href="/login?mode=register"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all"
-                >
-                  Bắt đầu miễn phí
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </>
-            )}
+            <a
+              href="/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#38414A] bg-[#1D2125] hover:bg-[#282E33] text-[#DEE4EA] text-xs font-semibold transition-colors"
+            >
+              Đăng nhập
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
+            <a
+              href="/login?mode=register"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all"
+            >
+              Bắt đầu miễn phí
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       </header>
@@ -161,36 +149,24 @@ export function LandingPage({ currentUser }: LandingPageProps) {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            {currentUser ? (
-              <Link
-                href="/spaces"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0C66E4] hover:bg-[#0055CC] text-white text-sm font-bold shadow-lg shadow-blue-900/40 transition-all"
-              >
-                Mở Danh sách Dự án (Spaces)
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            ) : (
-              <>
-                <a
-                  href="/login?mode=register"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0C66E4] hover:bg-[#0055CC] text-white text-sm font-bold shadow-lg shadow-blue-900/40 transition-all"
-                >
-                  Tạo tài khoản miễn phí
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-                <a
-                  href="/login"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1D2125] hover:bg-[#282E33] border border-[#38414A] text-white text-sm font-semibold transition-all"
-                >
-                  Đăng nhập bằng tài khoản Demo
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </>
-            )}
+            <a
+              href="/login?mode=register"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0C66E4] hover:bg-[#0055CC] text-white text-sm font-bold shadow-lg shadow-blue-900/40 transition-all"
+            >
+              Tạo tài khoản miễn phí
+              <ExternalLink className="w-4 h-4" />
+            </a>
+            <a
+              href="/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1D2125] hover:bg-[#282E33] border border-[#38414A] text-white text-sm font-semibold transition-all"
+            >
+              Đăng nhập ngay
+              <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
