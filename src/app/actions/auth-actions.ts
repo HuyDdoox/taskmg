@@ -202,3 +202,107 @@ export async function getDemoAccounts() {
     return { success: false, users: [] };
   }
 }
+
+export async function getInviteDetailsAction(token: string) {
+  try {
+    if (!token || token.length < 16) {
+      return { success: false, error: 'Đường dẫn lời mời không hợp lệ' };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { inviteToken: token },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        inviteTokenExp: true,
+        memberships: {
+          take: 1,
+          orderBy: { joinedAt: 'desc' },
+          include: {
+            project: {
+              select: { id: true, name: true, projectKey: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return { success: false, error: 'Lời mời không tồn tại hoặc đã được sử dụng' };
+    }
+
+    if (user.inviteTokenExp && Date.now() > new Date(user.inviteTokenExp).getTime()) {
+      return { success: false, error: 'Lời mời đã hết hạn (quá 24 giờ). Hãy liên hệ chủ dự án gửi lại!' };
+    }
+
+    const membership = user.memberships[0];
+    return {
+      success: true,
+      invite: {
+        email: user.email,
+        fullName: user.fullName,
+        role: membership?.role || 'MEMBER',
+        project: membership?.project || null,
+      },
+    };
+  } catch {
+    return { success: false, error: 'Không thể kiểm tra đường dẫn lời mời' };
+  }
+}
+
+export async function completeInviteSetupAction(
+  token: string,
+  fullNameInput: string,
+  password: string
+) {
+  try {
+    const fullName = fullNameInput.trim();
+    if (!fullName || fullName.length < 2) {
+      return { success: false, error: 'Họ tên phải có ít nhất 2 ký tự' };
+    }
+    if (!password || password.length < 6) {
+      return { success: false, error: 'Mật khẩu mới phải từ 6 ký tự trở lên' };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { inviteToken: token },
+      include: {
+        memberships: {
+          take: 1,
+          orderBy: { joinedAt: 'desc' },
+          select: { projectId: true },
+        },
+      },
+    });
+
+    if (!user) {
+      return { success: false, error: 'Lời mời không tồn tại hoặc đã được kích hoạt trước đó' };
+    }
+
+    if (user.inviteTokenExp && Date.now() > new Date(user.inviteTokenExp).getTime()) {
+      return { success: false, error: 'Lời mời đã hết hạn (quá 24 giờ)' };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        fullName,
+        passwordHash: hashPassword(password),
+        emailVerified: true,
+        inviteToken: null,
+        inviteTokenExp: null,
+      },
+    });
+
+    await createSession(user.id);
+    revalidatePath('/');
+    return {
+      success: true,
+      projectId: user.memberships[0]?.projectId || null,
+    };
+  } catch (error) {
+    console.error('Lỗi hoàn tất đặt mật khẩu lời mời:', error);
+    return { success: false, error: 'Không thể hoàn tất thiết lập mật khẩu' };
+  }
+}

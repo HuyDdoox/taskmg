@@ -1,8 +1,10 @@
 'use server';
 
+import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { getProjectPermissions } from '@/lib/rbac';
+import { sendInviteSetPasswordEmail } from '@/lib/mailer';
 import { resolveUserProjectRole } from './project-actions';
 import { createAndDispatchNotifications } from './notification-actions';
 import { revalidatePath } from 'next/cache';
@@ -47,6 +49,8 @@ export async function addProjectMember(data: {
       myRole === 'PM' && data.role === 'ADMIN' ? 'MEMBER' : data.role || 'MEMBER';
 
     let targetUserId = data.userId;
+    let isBrandNewUser = false;
+    let generatedInviteToken: string | null = null;
 
     if (!targetUserId) {
       const email = data.email?.trim().toLowerCase();
@@ -60,11 +64,16 @@ export async function addProjectMember(data: {
       if (existingUser) {
         targetUserId = existingUser.id;
       } else {
+        isBrandNewUser = true;
+        generatedInviteToken = crypto.randomBytes(24).toString('hex');
         const createdUser = await prisma.user.create({
           data: {
             email,
             fullName,
-            passwordHash: 'member-invited',
+            passwordHash: 'pending-invite',
+            emailVerified: false,
+            inviteToken: generatedInviteToken,
+            inviteTokenExp: new Date(Date.now() + 24 * 60 * 60 * 1000),
           },
         });
         targetUserId = createdUser.id;
@@ -93,18 +102,49 @@ export async function addProjectMember(data: {
       include: { user: true, project: true },
     });
 
-    await createAndDispatchNotifications({
-      userIds: [targetUserId],
-      excludeUserId: currentUser.id,
-      projectId: data.projectId,
-      type: 'PROJECT_INVITED',
-      title: `Bạn được mời vào dự án [${member.project.projectKey}]`,
-      message: `${currentUser.fullName} đã thêm bạn vào dự án "${member.project.name}" với vai trò ${safeRole}.`,
-    });
+    let emailSent = false;
+    if (isBrandNewUser && generatedInviteToken) {
+      const mailRes = await sendInviteSetPasswordEmail({
+        to: member.user.email,
+        recipientName: member.user.fullName,
+        inviterName: currentUser.fullName,
+        projectName: member.project.name,
+        projectKey: member.project.projectKey,
+        role: safeRole,
+        inviteToken: generatedInviteToken,
+      });
+      emailSent = mailRes.sent;
+
+      // Vẫn tạo thông báo trong App để khi user đặt mật khẩu xong sẽ thấy
+      await prisma.notification.create({
+        data: {
+          userId: targetUserId,
+          projectId: data.projectId,
+          type: 'PROJECT_INVITED',
+          title: `Chào mừng tới dự án [${member.project.projectKey}]`,
+          message: `${currentUser.fullName} đã mời bạn tham gia "${member.project.name}" với vai trò ${safeRole}.`,
+        },
+      });
+    } else {
+      await createAndDispatchNotifications({
+        userIds: [targetUserId],
+        excludeUserId: currentUser.id,
+        projectId: data.projectId,
+        type: 'PROJECT_INVITED',
+        title: `Bạn được mời vào dự án [${member.project.projectKey}]`,
+        message: `${currentUser.fullName} đã thêm bạn vào dự án "${member.project.name}" với vai trò ${safeRole}.`,
+      });
+    }
 
     revalidatePath(`/projects/${data.projectId}`);
     revalidatePath('/');
-    return { success: true, member };
+    return {
+      success: true,
+      member,
+      isBrandNewUser,
+      emailSent,
+      invitePath: generatedInviteToken ? `/accept-invite?token=${generatedInviteToken}` : undefined,
+    };
   } catch (error: any) {
     console.error('Lỗi thêm thành viên:', error);
     return { success: false, error: error?.message || 'Không thể thêm thành viên vào dự án' };

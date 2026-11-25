@@ -8,7 +8,7 @@ import {
 } from '@/app/actions/member-actions';
 import { ProjectPermissions, getRoleBadgeStyle } from '@/lib/rbac';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { UserPlus, Trash2, Shield, X, Mail, Users } from 'lucide-react';
+import { UserPlus, Trash2, Shield, X, Mail, Users, Copy, Check } from 'lucide-react';
 
 interface MembersViewProps {
   project: any;
@@ -39,6 +39,13 @@ export function MembersView({
   const [role, setRole] = useState('MEMBER');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [inviteBanner, setInviteBanner] = useState<{
+    name: string;
+    email: string;
+    link: string;
+    emailSent: boolean;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const members = project.members || [];
   const memberUserIds = new Set(members.map((m: any) => m.userId));
@@ -49,7 +56,7 @@ export function MembersView({
     setErrorMsg('');
     setSubmitting(true);
 
-    const res = await addProjectMember(
+    const res: any = await addProjectMember(
       mode === 'EXISTING'
         ? { projectId: project.id, userId: selectedUserId, role }
         : { projectId: project.id, fullName, email, role }
@@ -59,6 +66,16 @@ export function MembersView({
 
     if (res.success && res.member) {
       onMemberAdded(res.member);
+      if (res.isBrandNewUser && res.invitePath) {
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        setInviteBanner({
+          name: res.member.user.fullName,
+          email: res.member.user.email,
+          link: `${origin}${res.invitePath}`,
+          emailSent: Boolean(res.emailSent),
+        });
+        setCopied(false);
+      }
       setSelectedUserId('');
       setFullName('');
       setEmail('');
@@ -115,6 +132,49 @@ export function MembersView({
             </button>
           )}
         </div>
+
+        {/* Invite Link Banner for newly created member */}
+        {inviteBanner && (
+          <div
+            className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+              isDark
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+            }`}
+          >
+            <div className="space-y-1 min-w-0">
+              <div className="font-bold">
+                ✅ Đã mời {inviteBanner.name} ({inviteBanner.email})!
+              </div>
+              <div className="opacity-85">
+                {inviteBanner.emailSent
+                  ? 'Đã gửi Email tự đặt mật khẩu tới Gmail của họ. Bạn cũng có thể copy link bên dưới để gửi trực tiếp:'
+                  : 'Copy đường dẫn bên dưới gửi cho thành viên để họ tự đặt mật khẩu và vào dự án:'}
+              </div>
+              <div className="font-mono text-[11px] truncate opacity-80">{inviteBanner.link}</div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(inviteBanner.link);
+                  setCopied(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white font-semibold cursor-pointer"
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? 'Đã copy!' : 'Copy Link Mời'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setInviteBanner(null)}
+                className="p-1.5 rounded hover:bg-black/10 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Members List */}
         <div

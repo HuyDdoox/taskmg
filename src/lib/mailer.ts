@@ -97,3 +97,41 @@ export async function sendNotificationEmail(params: {
     `,
   });
 }
+
+export async function sendInviteSetPasswordEmail(params: {
+  to: string;
+  recipientName: string;
+  inviterName: string;
+  projectName: string;
+  projectKey: string;
+  role: string;
+  inviteToken: string;
+}) {
+  const inviteUrl = `${APP_URL}/accept-invite?token=${params.inviteToken}`;
+  return sendEmail({
+    to: params.to,
+    subject: `[TaskMG] ${params.inviterName} mời bạn tham gia dự án [${params.projectKey}] ${params.projectName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #1D2125; color: #DEE4EA; padding: 28px; border-radius: 12px; border: 1px solid #2C333A;">
+        <div style="font-size: 12px; color: #579DFF; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+          Lời mời tham gia dự án
+        </div>
+        <h2 style="margin: 0 0 12px; color: #FFFFFF; font-size: 18px;">Chào mừng ${params.recipientName}!</h2>
+        <p style="font-size: 14px; line-height: 1.6; color: #B6C2CF; margin: 0 0 18px;">
+          <strong>${params.inviterName}</strong> vừa mời bạn tham gia dự án
+          <strong>[${params.projectKey}] ${params.projectName}</strong> với vai trò <strong>${params.role}</strong>.
+        </p>
+        <p style="font-size: 13px; color: #9FADBC; margin: 0 0 22px;">
+          Bấm nút bên dưới để <strong>tự đặt mật khẩu riêng</strong> và vào thẳng không gian làm việc:
+        </p>
+        <a href="${inviteUrl}" style="display: inline-block; background: #0C66E4; color: #FFFFFF; text-decoration: none; padding: 12px 22px; border-radius: 8px; font-weight: bold; font-size: 14px;">
+          Đặt mật khẩu & Tham gia Dự án →
+        </a>
+        <p style="font-size: 11px; color: #6B778C; margin-top: 24px; border-top: 1px solid #2C333A; padding-top: 12px;">
+          Đường dẫn này có hiệu lực trong <strong>24 giờ</strong>. Nếu nút không bấm được, copy link sau:<br/>
+          <span style="color: #579DFF; word-break: break-all;">${inviteUrl}</span>
+        </p>
+      </div>
+    `,
+  });
+}

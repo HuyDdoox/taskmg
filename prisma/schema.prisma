@@ -17,6 +17,8 @@ model User {
   emailVerified      Boolean         @default(true)
   verifyOtp          String?
   verifyOtpExp       DateTime?
+  inviteToken        String?         @unique
+  inviteTokenExp     DateTime?
   emailNotifyEnabled Boolean         @default(true)
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
