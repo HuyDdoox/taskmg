@@ -31,7 +31,7 @@ async function ProjectLoader({ projectId }: { projectId: string }) {
             {projectRes.error || 'Dự án này không tồn tại hoặc bạn chưa được mời tham gia.'}
           </p>
           <Link
-            href="/"
+            href="/spaces"
             className="inline-block px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold"
           >
             ← Quay lại Danh sách Dự án

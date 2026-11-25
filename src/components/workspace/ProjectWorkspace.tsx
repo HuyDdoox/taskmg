@@ -219,7 +219,7 @@ export function ProjectWorkspace({
           <div className="space-y-1">
             <div className="flex items-center gap-1.5 text-xs">
               <Link
-                href="/"
+                href="/spaces"
                 className={`hover:underline ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}
               >
                 Spaces

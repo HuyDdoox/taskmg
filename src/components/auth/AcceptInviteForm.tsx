@@ -42,7 +42,7 @@ export function AcceptInviteForm({ token, invite }: AcceptInviteFormProps) {
     setLoading(false);
 
     if (res.success) {
-      router.push(res.projectId ? `/projects/${res.projectId}` : '/');
+      router.push(res.projectId ? `/projects/${res.projectId}` : '/spaces');
       router.refresh();
     } else {
       setErrorMsg(res.error || 'Không thể đặt mật khẩu');

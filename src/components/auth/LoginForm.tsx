@@ -22,11 +22,12 @@ import {
 
 interface LoginFormProps {
   demoAccounts: any[];
+  defaultMode?: 'LOGIN' | 'REGISTER';
 }
 
-export function LoginForm({ demoAccounts }: LoginFormProps) {
+export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<'LOGIN' | 'REGISTER' | 'VERIFY_OTP'>('LOGIN');
+  const [mode, setMode] = useState<'LOGIN' | 'REGISTER' | 'VERIFY_OTP'>(defaultMode);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +47,7 @@ export function LoginForm({ demoAccounts }: LoginFormProps) {
       const res: any = await loginAction(email, password);
       setLoading(false);
       if (res.success) {
-        router.push('/');
+        router.push('/spaces');
         router.refresh();
       } else if (res.requiresOtp) {
         setMode('VERIFY_OTP');
@@ -79,7 +80,7 @@ export function LoginForm({ demoAccounts }: LoginFormProps) {
       const res = await verifyOtpAction(email, otp);
       setLoading(false);
       if (res.success) {
-        router.push('/');
+        router.push('/spaces');
         router.refresh();
       } else {
         setErrorMsg(res.error || 'Mã OTP không đúng');
@@ -110,7 +111,7 @@ export function LoginForm({ demoAccounts }: LoginFormProps) {
     const res = await quickLoginDemoAction(demoEmail);
     setLoading(false);
     if (res.success) {
-      router.push('/');
+      router.push('/spaces');
       router.refresh();
     } else {
       setErrorMsg(res.error || 'Không thể đăng nhập demo');
