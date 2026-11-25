@@ -12,6 +12,7 @@ import {
   Bug,
   ArrowUp,
   ArrowDown,
+  ArrowUpDown,
   Minus,
   Flame,
   ChevronDown,
@@ -93,6 +94,22 @@ export function ListView({
   const [showFilters, setShowFilters] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
+  // Sorting state (3-state: asc -> desc -> null)
+  type SortField = 'work' | 'dueDate' | 'assignee' | 'reporter' | 'priority' | 'status' | 'created';
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (field: SortField) => {
+    if (sortField !== field) {
+      setSortField(field);
+      setSortDir('asc');
+    } else if (sortDir === 'asc') {
+      setSortDir('desc');
+    } else {
+      setSortField(null);
+    }
+  };
+
   // Quick inline create
   const [isQuickCreating, setIsQuickCreating] = useState(false);
   const [quickTitle, setQuickTitle] = useState('');
@@ -100,7 +117,7 @@ export function ListView({
   const [quickLoading, setQuickLoading] = useState(false);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((t) => {
+    const filtered = tasks.filter((t) => {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (
@@ -115,7 +132,66 @@ export function ListView({
       if (milestoneFilter !== 'ALL' && t.milestoneId !== milestoneFilter) return false;
       return true;
     });
-  }, [tasks, searchQuery, selectedAssigneeId, priorityFilter, milestoneFilter]);
+
+    if (!sortField) return filtered;
+
+    const priorityWeight: Record<string, number> = {
+      BLOCKER: 4,
+      HIGH: 3,
+      MEDIUM: 2,
+      LOW: 1,
+      LOWEST: 0,
+    };
+
+    const colPositionMap = new Map<string, number>();
+    (project.columns || []).forEach((c: any, idx: number) => {
+      colPositionMap.set(c.id, c.position ?? idx);
+    });
+
+    const dir = sortDir === 'asc' ? 1 : -1;
+
+    return [...filtered].sort((a, b) => {
+      switch (sortField) {
+        case 'work': {
+          const numA = a.taskNumber ?? 0;
+          const numB = b.taskNumber ?? 0;
+          if (numA !== numB) return (numA - numB) * dir;
+          return (a.title || '').localeCompare(b.title || '') * dir;
+        }
+        case 'dueDate': {
+          if (!a.dueDate && !b.dueDate) return 0;
+          if (!a.dueDate) return 1;
+          if (!b.dueDate) return -1;
+          return (new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()) * dir;
+        }
+        case 'assignee': {
+          const nameA = a.assignee?.fullName || 'zzzz';
+          const nameB = b.assignee?.fullName || 'zzzz';
+          return nameA.localeCompare(nameB, 'vi') * dir;
+        }
+        case 'reporter': {
+          const nameA = a.reporter?.fullName || 'zzzz';
+          const nameB = b.reporter?.fullName || 'zzzz';
+          return nameA.localeCompare(nameB, 'vi') * dir;
+        }
+        case 'priority': {
+          const wA = priorityWeight[a.priority] ?? 2;
+          const wB = priorityWeight[b.priority] ?? 2;
+          return (wA - wB) * dir;
+        }
+        case 'status': {
+          const pA = colPositionMap.get(a.columnId) ?? 99;
+          const pB = colPositionMap.get(b.columnId) ?? 99;
+          return (pA - pB) * dir;
+        }
+        case 'created': {
+          return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir;
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [tasks, searchQuery, selectedAssigneeId, priorityFilter, milestoneFilter, sortField, sortDir, project.columns]);
 
   const groupedTasks = useMemo(() => {
     if (groupBy === 'NONE') {
@@ -399,13 +475,39 @@ export function ListView({
             }`}
           >
             <tr>
-              <th className="py-2.5 pl-6 pr-3 font-semibold w-[36%]">Work</th>
-              <th className="py-2.5 px-3 font-semibold w-[11%]">Due date</th>
-              <th className="py-2.5 px-3 font-semibold w-[14%]">Assignee</th>
-              <th className="py-2.5 px-3 font-semibold w-[13%]">Reporter</th>
-              <th className="py-2.5 px-3 font-semibold w-[10%]">Priority</th>
-              <th className="py-2.5 px-3 font-semibold w-[10%]">Status</th>
-              <th className="py-2.5 pl-3 pr-6 font-semibold w-[11%]">Created</th>
+              {[
+                { key: 'work' as const, label: 'Work', className: 'py-2.5 pl-6 pr-3 w-[36%]' },
+                { key: 'dueDate' as const, label: 'Due date', className: 'py-2.5 px-3 w-[11%]' },
+                { key: 'assignee' as const, label: 'Assignee', className: 'py-2.5 px-3 w-[14%]' },
+                { key: 'reporter' as const, label: 'Reporter', className: 'py-2.5 px-3 w-[13%]' },
+                { key: 'priority' as const, label: 'Priority', className: 'py-2.5 px-3 w-[10%]' },
+                { key: 'status' as const, label: 'Status', className: 'py-2.5 px-3 w-[10%]' },
+                { key: 'created' as const, label: 'Created', className: 'py-2.5 pl-3 pr-6 w-[11%]' },
+              ].map((col) => {
+                const isActive = sortField === col.key;
+                return (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    className={`${col.className} font-semibold select-none cursor-pointer transition-colors ${
+                      isDark ? 'hover:text-white hover:bg-[#22272B]' : 'hover:text-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="inline-flex items-center gap-1.5">
+                      <span className={isActive ? 'text-[#579DFF]' : ''}>{col.label}</span>
+                      {isActive ? (
+                        sortDir === 'asc' ? (
+                          <ArrowUp className="w-3.5 h-3.5 text-[#579DFF]" />
+                        ) : (
+                          <ArrowDown className="w-3.5 h-3.5 text-[#579DFF]" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-3 h-3 opacity-35" />
+                      )}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
 
