@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import { getAllProjects, getProjectById } from '@/app/actions/project-actions';
 import { getAllUsers } from '@/app/actions/member-actions';
 import { ProjectWorkspace } from '@/components/workspace/ProjectWorkspace';
@@ -8,6 +10,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 async function ProjectLoader({ projectId }: { projectId: string }) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    redirect('/login');
+  }
+
   const [projectRes, allProjectsRes, usersRes] = await Promise.all([
     getProjectById(projectId),
     getAllProjects(),
@@ -18,10 +25,10 @@ async function ProjectLoader({ projectId }: { projectId: string }) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#1D2125] p-6 text-[#B6C2CF]">
         <div className="max-w-md w-full bg-[#22272B] p-6 rounded-xl border border-[#38414A] text-center space-y-4">
-          <div className="text-3xl">🔍</div>
-          <h2 className="text-base font-bold text-white">Không tìm thấy Dự án</h2>
+          <div className="text-3xl">🔒</div>
+          <h2 className="text-base font-bold text-white">Không thể truy cập Dự án</h2>
           <p className="text-xs text-[#8C9BAB]">
-            {projectRes.error || 'Dự án này có thể đã bị xóa hoặc đường dẫn không hợp lệ.'}
+            {projectRes.error || 'Dự án này không tồn tại hoặc bạn chưa được mời tham gia.'}
           </p>
           <Link
             href="/"
@@ -39,6 +46,8 @@ async function ProjectLoader({ projectId }: { projectId: string }) {
       initialProject={projectRes.project}
       allProjects={allProjectsRes.projects || []}
       allUsers={usersRes.users || []}
+      currentUser={currentUser}
+      userRole={projectRes.userRole || 'VIEWER'}
     />
   );
 }

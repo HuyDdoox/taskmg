@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react';
 import { createMilestone } from '@/app/actions/project-actions';
+import { ProjectPermissions } from '@/lib/rbac';
 import { Calendar, Plus, Target, ChevronDown, ChevronRight, X } from 'lucide-react';
 
 interface TimelineViewProps {
   project: any;
   tasks: any[];
+  permissions: ProjectPermissions;
   isDark: boolean;
   onSelectTask: (task: any) => void;
   onMilestoneCreated: (milestone: any) => void;
@@ -15,6 +17,7 @@ interface TimelineViewProps {
 export function TimelineView({
   project,
   tasks,
+  permissions,
   isDark,
   onSelectTask,
   onMilestoneCreated,
@@ -71,12 +74,14 @@ export function TimelineView({
               Theo dõi tiến độ các Giai đoạn (Milestones / Sprints) và hạn chót từng công việc.
             </p>
           </div>
-          <button
-            onClick={() => setIsAddOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" /> Thêm Giai Đoạn
-          </button>
+          {permissions.canManageMilestones && (
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" /> Thêm Giai Đoạn
+            </button>
+          )}
         </div>
 
         {/* Milestones Roadmap List */}

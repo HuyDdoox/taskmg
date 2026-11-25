@@ -1,6 +1,9 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+import { getProjectPermissions } from '@/lib/rbac';
+import { resolveUserProjectRole } from './project-actions';
 import { revalidatePath } from 'next/cache';
 
 export async function getAllUsers() {
@@ -29,6 +32,19 @@ export async function addProjectMember(data: {
   role: string;
 }) {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const myRole = await resolveUserProjectRole(data.projectId, currentUser.id);
+    const perms = getProjectPermissions(myRole);
+    if (!perms.canAddMember) {
+      return { success: false, error: 'Chỉ ADMIN hoặc PM mới có quyền thêm thành viên!' };
+    }
+
+    // PM không được phép gán quyền ADMIN
+    const safeRole =
+      myRole === 'PM' && data.role === 'ADMIN' ? 'MEMBER' : data.role || 'MEMBER';
+
     let targetUserId = data.userId;
 
     if (!targetUserId) {
@@ -71,7 +87,7 @@ export async function addProjectMember(data: {
       data: {
         projectId: data.projectId,
         userId: targetUserId,
-        role: data.role || 'MEMBER',
+        role: safeRole,
       },
       include: { user: true },
     });
@@ -87,6 +103,14 @@ export async function addProjectMember(data: {
 
 export async function updateProjectMemberRole(memberId: string, role: string, projectId: string) {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const myRole = await resolveUserProjectRole(projectId, currentUser.id);
+    if (!getProjectPermissions(myRole).canManageMemberRoles) {
+      return { success: false, error: 'Chỉ ADMIN mới có quyền thay đổi vai trò thành viên!' };
+    }
+
     const member = await prisma.projectMember.update({
       where: { id: memberId },
       data: { role },
@@ -103,6 +127,14 @@ export async function updateProjectMemberRole(memberId: string, role: string, pr
 
 export async function removeProjectMember(memberId: string, projectId: string) {
   try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const myRole = await resolveUserProjectRole(projectId, currentUser.id);
+    if (!getProjectPermissions(myRole).canManageMemberRoles) {
+      return { success: false, error: 'Chỉ ADMIN mới có quyền gỡ thành viên khỏi dự án!' };
+    }
+
     await prisma.projectMember.delete({ where: { id: memberId } });
     revalidatePath(`/projects/${projectId}`);
     revalidatePath('/');

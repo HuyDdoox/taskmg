@@ -3,6 +3,11 @@
 import React, { useState } from 'react';
 import { updateTaskColumn } from '@/app/actions/task-actions';
 import {
+  ProjectPermissions,
+  canUserModifyTaskStatus,
+  isDoneColumnTitle,
+} from '@/lib/rbac';
+import {
   Search,
   Plus,
   Flag,
@@ -13,6 +18,7 @@ import {
 interface KanbanBoardProps {
   project: any;
   currentUser?: any;
+  permissions: ProjectPermissions;
   socket?: any;
   isDark?: boolean;
   onSelectTask: (task: any) => void;
@@ -23,6 +29,7 @@ interface KanbanBoardProps {
 export function KanbanBoard({
   project,
   currentUser,
+  permissions,
   socket,
   isDark = true,
   onSelectTask,
@@ -82,13 +89,30 @@ export function KanbanBoard({
       return;
     }
 
+    if (!canUserModifyTaskStatus(permissions.role, foundTask.assigneeId, currentUser?.id)) {
+      alert(
+        permissions.role === 'VIEWER'
+          ? 'Tài khoản VIEWER chỉ có quyền xem!'
+          : 'MEMBER chỉ được kéo thả công việc được giao cho mình!'
+      );
+      setDraggedTaskId(null);
+      return;
+    }
+
+    const targetCol = project.columns.find((c: any) => c.id === targetColumnId);
+    if (targetCol && isDoneColumnTitle(targetCol.title) && !permissions.canMoveToDone) {
+      alert('Chỉ PM hoặc ADMIN mới được chốt duyệt chuyển sang Done! Hãy chuyển sang In Review.');
+      setDraggedTaskId(null);
+      return;
+    }
+
     const newOrderIndex = Date.now() % 100000;
     onTaskMoved(taskId, targetColumnId, newOrderIndex);
     setDraggedTaskId(null);
 
     const res = await updateTaskColumn(taskId, targetColumnId, newOrderIndex);
     if (!res.success) {
-      alert('Không thể lưu trạng thái kéo thả lên máy chủ');
+      alert(res.error || 'Không thể lưu trạng thái kéo thả lên máy chủ');
     } else if (socket) {
       socket.emit('task_moved', {
         projectId: project.id,
@@ -277,11 +301,23 @@ export function KanbanBoard({
                       task.checklists?.filter((c: any) => c.isCompleted).length || 0;
                     const totalChecklists = task.checklists?.length || 0;
 
+                    const canDrag = canUserModifyTaskStatus(
+                      permissions.role,
+                      task.assigneeId,
+                      currentUser?.id
+                    );
+
                     return (
                       <div
                         key={task.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, task.id)}
+                        draggable={canDrag}
+                        onDragStart={(e) => {
+                          if (!canDrag) {
+                            e.preventDefault();
+                            return;
+                          }
+                          handleDragStart(e, task.id);
+                        }}
                         onClick={() => onSelectTask(task)}
                         className={`p-3.5 rounded-xl border transition-all cursor-pointer group space-y-2.5 ${
                           isDark
@@ -372,19 +408,21 @@ export function KanbanBoard({
                   )}
                 </div>
 
-                {/* Add Task Button */}
-                <div className="p-2 pt-0">
-                  <button
-                    onClick={() => onOpenCreateModal(column.id)}
-                    className={`w-full py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                      isDark
-                        ? 'text-[#9FADBC] hover:bg-[#22272B] hover:text-white'
-                        : 'text-gray-600 hover:bg-gray-300/60'
-                    }`}
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Thêm công việc
-                  </button>
-                </div>
+                {/* Add Task Button (Hidden for VIEWER) */}
+                {permissions.canCreateTask && (
+                  <div className="p-2 pt-0">
+                    <button
+                      onClick={() => onOpenCreateModal(column.id)}
+                      className={`w-full py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                        isDark
+                          ? 'text-[#9FADBC] hover:bg-[#22272B] hover:text-white'
+                          : 'text-gray-600 hover:bg-gray-300/60'
+                      }`}
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Thêm công việc
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}

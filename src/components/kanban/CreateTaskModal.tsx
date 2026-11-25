@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createQuickTask } from '@/app/actions/task-actions';
+import { ProjectPermissions } from '@/lib/rbac';
 import { X } from 'lucide-react';
 
 interface CreateTaskModalProps {
@@ -10,6 +11,7 @@ interface CreateTaskModalProps {
   milestones: any[];
   members?: any[];
   currentUserId?: string;
+  permissions?: ProjectPermissions;
   defaultColumnId?: string;
   isDark?: boolean;
   isOpen: boolean;
@@ -23,6 +25,7 @@ export function CreateTaskModal({
   milestones,
   members = [],
   currentUserId,
+  permissions,
   defaultColumnId,
   isDark = true,
   isOpen,
@@ -176,7 +179,12 @@ export function CreateTaskModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Người thực hiện (Assignee):</label>
-              <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} className={inputClass}>
+              <select
+                value={assigneeId}
+                disabled={permissions && !permissions.canAssignOthers}
+                onChange={(e) => setAssigneeId(e.target.value)}
+                className={`${inputClass} disabled:opacity-60`}
+              >
                 <option value="">-- Chưa gán --</option>
                 {members.map((m) => (
                   <option key={m.user.id} value={m.user.id}>
@@ -188,7 +196,12 @@ export function CreateTaskModal({
 
             <div>
               <label className={labelClass}>Độ Ưu Tiên (Priority):</label>
-              <select value={priority} onChange={(e) => setPriority(e.target.value)} className={inputClass}>
+              <select
+                value={priority}
+                disabled={permissions && !permissions.canEditTaskMeta}
+                onChange={(e) => setPriority(e.target.value)}
+                className={`${inputClass} disabled:opacity-60`}
+              >
                 <option value="LOW">Low (Thấp)</option>
                 <option value="MEDIUM">Medium (Vừa)</option>
                 <option value="HIGH">High (Cao)</option>

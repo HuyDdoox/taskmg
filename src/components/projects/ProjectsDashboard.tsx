@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createProject, deleteProject } from '@/app/actions/project-actions';
+import { logoutAction } from '@/app/actions/auth-actions';
+import { getRoleBadgeStyle } from '@/lib/rbac';
 import {
   FolderKanban,
   Plus,
   Search,
   Users,
-  CheckCircle2,
   ArrowRight,
   Trash2,
   X,
@@ -17,10 +18,12 @@ import {
   Moon,
   Layers,
   Sparkles,
+  LogOut,
 } from 'lucide-react';
 
 interface ProjectsDashboardProps {
   initialProjects: any[];
+  currentUser: { id: string; fullName: string; email: string };
 }
 
 const AVATAR_COLORS = [
@@ -38,8 +41,14 @@ function getInitials(name?: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function ProjectsDashboard({ initialProjects }: ProjectsDashboardProps) {
+export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDashboardProps) {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    await logoutAction();
+    router.push('/login');
+    router.refresh();
+  };
   const [projects, setProjects] = useState(initialProjects);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDark, setIsDark] = useState(true);
@@ -163,9 +172,22 @@ export function ProjectsDashboard({ initialProjects }: ProjectsDashboardProps) {
         </div>
 
         <div className="flex items-center gap-3">
+          <div
+            className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs ${
+              isDark
+                ? 'bg-[#22272B] border-[#38414A] text-[#B6C2CF]'
+                : 'bg-gray-50 border-gray-200 text-gray-700'
+            }`}
+          >
+            <div className="w-5 h-5 rounded-full bg-[#0C66E4] text-white text-[10px] font-bold flex items-center justify-center">
+              {getInitials(currentUser.fullName)}
+            </div>
+            <span className="font-semibold max-w-[140px] truncate">{currentUser.fullName}</span>
+          </div>
+
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-lg border transition-colors ${
+            className={`p-2 rounded-lg border transition-colors cursor-pointer ${
               isDark
                 ? 'bg-[#22272B] border-[#38414A] text-amber-400 hover:bg-[#2C333A]'
                 : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
@@ -180,6 +202,18 @@ export function ProjectsDashboard({ initialProjects }: ProjectsDashboardProps) {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Tạo Dự Án Mới
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+              isDark
+                ? 'bg-[#22272B] border-[#38414A] text-[#9FADBC] hover:text-red-400 hover:border-red-500/40'
+                : 'bg-gray-100 border-gray-200 text-gray-600 hover:text-red-600'
+            }`}
+            title="Đăng xuất"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </header>
@@ -283,17 +317,29 @@ export function ProjectsDashboard({ initialProjects }: ProjectsDashboardProps) {
                         </div>
                       </div>
 
-                      <button
-                        onClick={(e) => handleDelete(e, project.id, project.name)}
-                        className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isDark
-                            ? 'text-[#8C9BAB] hover:text-red-400 hover:bg-red-500/10'
-                            : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
-                        }`}
-                        title="Xóa dự án"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getRoleBadgeStyle(
+                            project.myRole,
+                            isDark
+                          )}`}
+                        >
+                          {project.myRole || 'MEMBER'}
+                        </span>
+                        {project.myRole === 'ADMIN' && (
+                          <button
+                            onClick={(e) => handleDelete(e, project.id, project.name)}
+                            className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
+                              isDark
+                                ? 'text-[#8C9BAB] hover:text-red-400 hover:bg-red-500/10'
+                                : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+                            }`}
+                            title="Xóa dự án (Chỉ ADMIN)"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Description */}

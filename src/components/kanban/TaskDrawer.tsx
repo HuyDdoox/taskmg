@@ -8,6 +8,12 @@ import {
   deleteTask,
 } from '@/app/actions/task-actions';
 import {
+  ProjectPermissions,
+  canUserModifyTaskStatus,
+  canUserToggleChecklist,
+  isDoneColumnTitle,
+} from '@/lib/rbac';
+import {
   X,
   Calendar,
   Clock,
@@ -20,6 +26,8 @@ import {
 interface TaskDrawerProps {
   task: any | null;
   project?: any;
+  currentUser?: any;
+  permissions?: ProjectPermissions;
   isDark?: boolean;
   onClose: () => void;
   onTaskUpdated?: (updatedTask: any) => void;
@@ -29,6 +37,8 @@ interface TaskDrawerProps {
 export function TaskDrawer({
   task,
   project,
+  currentUser,
+  permissions,
   isDark = true,
   onClose,
   onTaskUpdated,
@@ -49,7 +59,19 @@ export function TaskDrawer({
   const progressPercent =
     checklists.length > 0 ? Math.round((completedCount / checklists.length) * 100) : 0;
 
+  const canEditStatus = permissions
+    ? canUserModifyTaskStatus(permissions.role, task.assigneeId, currentUser?.id)
+    : true;
+  const canEditChecklist = permissions
+    ? canUserToggleChecklist(permissions.role, task.assigneeId, currentUser?.id)
+    : true;
+  const canDelete = permissions ? permissions.canDeleteTask : true;
+  const canEditMeta = permissions ? permissions.canEditTaskMeta : true;
+  const canAssign = permissions ? permissions.canAssignOthers : true;
+  const canMoveDone = permissions ? permissions.canMoveToDone : true;
+
   const handleToggleChecklist = async (id: string, currentStatus: boolean) => {
+    if (!canEditChecklist) return;
     setUpdatingId(id);
     const newStatus = !currentStatus;
 
@@ -62,12 +84,14 @@ export function TaskDrawer({
     setUpdatingId(null);
     if (res.success && onTaskUpdated) {
       onTaskUpdated({ ...task, checklists: updatedList });
+    } else if (res.error) {
+      alert(res.error);
     }
   };
 
   const handleAddChecklist = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newChecklistTitle.trim()) return;
+    if (!canEditChecklist || !newChecklistTitle.trim()) return;
     setAddingChecklist(true);
     const res = await addChecklistItem(task.id, newChecklistTitle.trim(), project?.id);
     setAddingChecklist(false);
@@ -79,6 +103,8 @@ export function TaskDrawer({
       if (onTaskUpdated) {
         onTaskUpdated({ ...task, checklists: updatedList });
       }
+    } else if (res.error) {
+      alert(res.error);
     }
   };
 
@@ -87,16 +113,20 @@ export function TaskDrawer({
     const res = await updateTaskFields(task.id, project.id, patch);
     if (res.success && res.task && onTaskUpdated) {
       onTaskUpdated(res.task);
+    } else if (res.error) {
+      alert(res.error);
     }
   };
 
   const handleDelete = async () => {
-    if (!project?.id) return;
+    if (!project?.id || !canDelete) return;
     if (!confirm(`Xóa công việc ${task.issueKey} - "${task.title}"?`)) return;
     const res = await deleteTask(task.id, project.id);
     if (res.success) {
       if (onTaskDeleted) onTaskDeleted(task.id);
       onClose();
+    } else if (res.error) {
+      alert(res.error);
     }
   };
 
@@ -138,7 +168,7 @@ export function TaskDrawer({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {project?.id && (
+            {project?.id && canDelete && (
               <button
                 onClick={handleDelete}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
@@ -146,7 +176,7 @@ export function TaskDrawer({
                     ? 'text-[#8C9BAB] hover:text-red-400 hover:bg-red-500/10'
                     : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
                 }`}
-                title="Xóa công việc"
+                title="Xóa công việc (ADMIN / PM)"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -239,26 +269,28 @@ export function TaskDrawer({
                 </div>
 
                 {/* Add new checklist item */}
-                <form onSubmit={handleAddChecklist} className="flex gap-2 pt-1">
-                  <input
-                    type="text"
-                    placeholder="Thêm bước cần làm..."
-                    value={newChecklistTitle}
-                    onChange={(e) => setNewChecklistTitle(e.target.value)}
-                    className={`flex-1 px-3 py-1.5 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#579DFF] ${
-                      isDark
-                        ? 'bg-[#1D2125] border-[#38414A] text-white placeholder-[#6B778C]'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
-                  />
-                  <button
-                    type="submit"
-                    disabled={addingChecklist}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Thêm
-                  </button>
-                </form>
+                {canEditChecklist && (
+                  <form onSubmit={handleAddChecklist} className="flex gap-2 pt-1">
+                    <input
+                      type="text"
+                      placeholder="Thêm bước cần làm..."
+                      value={newChecklistTitle}
+                      onChange={(e) => setNewChecklistTitle(e.target.value)}
+                      className={`flex-1 px-3 py-1.5 rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-[#579DFF] ${
+                        isDark
+                          ? 'bg-[#1D2125] border-[#38414A] text-white placeholder-[#6B778C]'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                    <button
+                      type="submit"
+                      disabled={addingChecklist}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Thêm
+                    </button>
+                  </form>
+                )}
               </div>
 
               {/* Activity Logs */}
@@ -302,14 +334,19 @@ export function TaskDrawer({
                   <span className="opacity-70 font-medium">Trạng thái (Status):</span>
                   <select
                     value={task.columnId}
+                    disabled={!canEditStatus}
                     onChange={(e) => handleFieldUpdate({ columnId: e.target.value })}
-                    className={selectClass}
+                    className={`${selectClass} disabled:opacity-60`}
                   >
-                    {project.columns.map((c: any) => (
-                      <option key={c.id} value={c.id}>
-                        {c.title}
-                      </option>
-                    ))}
+                    {project.columns.map((c: any) => {
+                      const lockedDone = isDoneColumnTitle(c.title) && !canMoveDone;
+                      return (
+                        <option key={c.id} value={c.id} disabled={lockedDone}>
+                          {c.title}
+                          {lockedDone ? ' (Chỉ PM/Admin)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               )}
@@ -320,8 +357,9 @@ export function TaskDrawer({
                   <span className="opacity-70 font-medium">Người làm (Assignee):</span>
                   <select
                     value={task.assigneeId || ''}
+                    disabled={!canAssign}
                     onChange={(e) => handleFieldUpdate({ assigneeId: e.target.value || null })}
-                    className={selectClass}
+                    className={`${selectClass} disabled:opacity-60`}
                   >
                     <option value="">Unassigned</option>
                     {project.members.map((m: any) => (
@@ -338,8 +376,9 @@ export function TaskDrawer({
                 <span className="opacity-70 font-medium">Độ ưu tiên (Priority):</span>
                 <select
                   value={task.priority}
+                  disabled={!canEditMeta}
                   onChange={(e) => handleFieldUpdate({ priority: e.target.value })}
-                  className={selectClass}
+                  className={`${selectClass} disabled:opacity-60`}
                 >
                   <option value="BLOCKER">Highest / Blocker</option>
                   <option value="HIGH">High</option>
@@ -353,8 +392,9 @@ export function TaskDrawer({
                 <span className="opacity-70 font-medium">Mức Rủi Ro:</span>
                 <select
                   value={task.riskLevel}
+                  disabled={!canEditMeta}
                   onChange={(e) => handleFieldUpdate({ riskLevel: e.target.value })}
-                  className={selectClass}
+                  className={`${selectClass} disabled:opacity-60`}
                 >
                   <option value="LOW">Low</option>
                   <option value="MEDIUM">Medium</option>
@@ -370,9 +410,10 @@ export function TaskDrawer({
                 </span>
                 <input
                   type="date"
+                  disabled={!canEditMeta}
                   value={task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}
                   onChange={(e) => handleFieldUpdate({ dueDate: e.target.value || null })}
-                  className={selectClass}
+                  className={`${selectClass} disabled:opacity-60`}
                 />
               </div>
 

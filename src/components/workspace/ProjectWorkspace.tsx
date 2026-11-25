@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSocket } from '@/hooks/useSocket';
+import { logoutAction } from '@/app/actions/auth-actions';
+import { getProjectPermissions, getRoleBadgeStyle, ProjectRole } from '@/lib/rbac';
 import { SummaryView } from './SummaryView';
 import { ListView } from './ListView';
 import { TimelineView } from './TimelineView';
@@ -20,9 +22,9 @@ import {
   Plus,
   Sun,
   Moon,
-  FolderKanban,
   ChevronRight,
-  UserCircle2,
+  LogOut,
+  Shield,
 } from 'lucide-react';
 
 export type WorkspaceTab = 'summary' | 'list' | 'board' | 'timeline' | 'members';
@@ -31,12 +33,16 @@ interface ProjectWorkspaceProps {
   initialProject: any;
   allProjects: any[];
   allUsers: any[];
+  currentUser: { id: string; fullName: string; email: string };
+  userRole: ProjectRole | string;
 }
 
 export function ProjectWorkspace({
   initialProject,
   allProjects,
   allUsers,
+  currentUser,
+  userRole,
 }: ProjectWorkspaceProps) {
   const router = useRouter();
   const [project, setProject] = useState(initialProject);
@@ -45,11 +51,9 @@ export function ProjectWorkspace({
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createColumnId, setCreateColumnId] = useState<string>('');
-  const [currentUserId, setCurrentUserId] = useState<string>(
-    initialProject.owner?.id || initialProject.members?.[0]?.user?.id || ''
-  );
 
-  // Sync theme with localStorage
+  const permissions = useMemo(() => getProjectPermissions(userRole), [userRole]);
+
   useEffect(() => {
     const saved = localStorage.getItem('taskmg-theme');
     if (saved === 'light') setIsDark(false);
@@ -61,7 +65,12 @@ export function ProjectWorkspace({
     localStorage.setItem('taskmg-theme', next ? 'dark' : 'light');
   };
 
-  // Realtime sync for Kanban moves
+  const handleLogout = async () => {
+    await logoutAction();
+    router.push('/login');
+    router.refresh();
+  };
+
   const { socket } = useSocket(project?.id);
 
   useEffect(() => {
@@ -85,13 +94,6 @@ export function ProjectWorkspace({
     () => (project.columns || []).flatMap((c: any) => c.tasks || []),
     [project.columns]
   );
-
-  const currentUser = useMemo(() => {
-    const foundMember = (project.members || []).find(
-      (m: any) => m.user?.id === currentUserId
-    );
-    return foundMember?.user || project.owner;
-  }, [project.members, project.owner, currentUserId]);
 
   const handleTaskMovedState = (
     taskId: string,
@@ -205,16 +207,14 @@ export function ProjectWorkspace({
         isDark ? 'bg-[#1D2125] text-[#B6C2CF]' : 'bg-[#F4F5F7] text-gray-900'
       }`}
     >
-      {/* 1. TOP JIRA HEADER (Spaces / Project Name + Actions) */}
+      {/* 1. TOP JIRA HEADER */}
       <header
         className={`px-6 pt-3 pb-0 border-b shrink-0 ${
           isDark ? 'bg-[#1D2125] border-[#2C333A]' : 'bg-white border-gray-200'
         }`}
       >
-        {/* Top Row: Breadcrumb + Project Switcher + Right Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
           <div className="space-y-1">
-            {/* Breadcrumb */}
             <div className="flex items-center gap-1.5 text-xs">
               <Link
                 href="/"
@@ -242,7 +242,6 @@ export function ProjectWorkspace({
               </select>
             </div>
 
-            {/* Project Title */}
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[#0C66E4] to-sky-400 text-white font-bold text-[10px] font-mono flex items-center justify-center shadow-xs">
                 {project.projectKey}
@@ -250,48 +249,45 @@ export function ProjectWorkspace({
               <h1 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {project.name}
               </h1>
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border ${getRoleBadgeStyle(
+                  permissions.role,
+                  isDark
+                )}`}
+                title="Vai trò của bạn trong dự án này"
+              >
+                <Shield className="w-3 h-3" /> {permissions.role}
+              </span>
             </div>
           </div>
 
-          {/* Right Controls */}
           <div className="flex items-center gap-2.5">
-            {/* Switch Active User */}
+            {/* Logged-in User Info */}
             <div
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs ${
+              className={`hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs ${
                 isDark
                   ? 'bg-[#22272B] border-[#38414A] text-[#B6C2CF]'
                   : 'bg-gray-50 border-gray-200 text-gray-700'
               }`}
-              title="Đổi tài khoản thao tác"
             >
-              <UserCircle2 className="w-3.5 h-3.5 text-[#579DFF]" />
-              <select
-                value={currentUserId}
-                onChange={(e) => setCurrentUserId(e.target.value)}
-                className="bg-transparent text-xs font-medium focus:outline-none cursor-pointer"
-              >
-                {(project.members || []).map((m: any) => (
-                  <option
-                    key={m.user.id}
-                    value={m.user.id}
-                    className={isDark ? 'bg-[#22272B] text-white' : 'bg-white text-gray-900'}
-                  >
-                    {m.user.fullName} ({m.role})
-                  </option>
-                ))}
-              </select>
+              <div className="w-5 h-5 rounded-full bg-[#0C66E4] text-white text-[10px] font-bold flex items-center justify-center">
+                {currentUser.fullName.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium max-w-[130px] truncate">{currentUser.fullName}</span>
             </div>
 
-            {/* Create Task Button */}
-            <button
-              onClick={() => {
-                setCreateColumnId(project.columns?.[0]?.id || '');
-                setIsCreateModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            >
-              <Plus className="w-4 h-4" /> Tạo Task
-            </button>
+            {/* Create Task Button (Hidden for VIEWER) */}
+            {permissions.canCreateTask && (
+              <button
+                onClick={() => {
+                  setCreateColumnId(project.columns?.[0]?.id || '');
+                  setIsCreateModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" /> Tạo Task
+              </button>
+            )}
 
             {/* Dark/Light Toggle */}
             <button
@@ -304,6 +300,19 @@ export function ProjectWorkspace({
               title={isDark ? 'Giao diện Sáng' : 'Giao diện Tối'}
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                isDark
+                  ? 'bg-[#22272B] border-[#38414A] text-[#9FADBC] hover:text-red-400 hover:border-red-500/40'
+                  : 'bg-gray-100 border-gray-200 text-gray-600 hover:text-red-600'
+              }`}
+              title="Đăng xuất / Đổi tài khoản"
+            >
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -343,6 +352,7 @@ export function ProjectWorkspace({
             project={project}
             tasks={allTasks}
             currentUser={currentUser}
+            permissions={permissions}
             isDark={isDark}
             onSelectTask={(task) => setSelectedTask(task)}
             onTaskUpdated={handleTaskUpdated}
@@ -354,6 +364,7 @@ export function ProjectWorkspace({
           <KanbanBoard
             project={project}
             currentUser={currentUser}
+            permissions={permissions}
             socket={socket}
             isDark={isDark}
             onSelectTask={(task) => setSelectedTask(task)}
@@ -369,6 +380,7 @@ export function ProjectWorkspace({
           <TimelineView
             project={project}
             tasks={allTasks}
+            permissions={permissions}
             isDark={isDark}
             onSelectTask={(task) => setSelectedTask(task)}
             onMilestoneCreated={handleMilestoneCreated}
@@ -380,6 +392,7 @@ export function ProjectWorkspace({
             project={project}
             allUsers={allUsers}
             tasks={allTasks}
+            permissions={permissions}
             isDark={isDark}
             onMemberAdded={handleMemberAdded}
             onMemberUpdated={handleMemberUpdated}
@@ -393,6 +406,8 @@ export function ProjectWorkspace({
         <TaskDrawer
           task={selectedTask}
           project={project}
+          currentUser={currentUser}
+          permissions={permissions}
           isDark={isDark}
           onClose={() => setSelectedTask(null)}
           onTaskUpdated={handleTaskUpdated}
@@ -401,18 +416,21 @@ export function ProjectWorkspace({
       )}
 
       {/* 5. CREATE TASK MODAL */}
-      <CreateTaskModal
-        isOpen={isCreateModalOpen}
-        projectId={project.id}
-        columns={project.columns || []}
-        milestones={project.milestones || []}
-        members={project.members || []}
-        currentUserId={currentUser?.id}
-        defaultColumnId={createColumnId}
-        isDark={isDark}
-        onClose={() => setIsCreateModalOpen(false)}
-        onTaskCreated={handleTaskCreated}
-      />
+      {permissions.canCreateTask && (
+        <CreateTaskModal
+          isOpen={isCreateModalOpen}
+          projectId={project.id}
+          columns={project.columns || []}
+          milestones={project.milestones || []}
+          members={project.members || []}
+          currentUserId={currentUser?.id}
+          permissions={permissions}
+          defaultColumnId={createColumnId}
+          isDark={isDark}
+          onClose={() => setIsCreateModalOpen(false)}
+          onTaskCreated={handleTaskCreated}
+        />
+      )}
     </div>
   );
 }

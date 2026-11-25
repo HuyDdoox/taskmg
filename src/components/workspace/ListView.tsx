@@ -3,6 +3,11 @@
 import React, { useState, useMemo } from 'react';
 import { createQuickTask, updateTaskFields } from '@/app/actions/task-actions';
 import {
+  ProjectPermissions,
+  canUserModifyTaskStatus,
+  isDoneColumnTitle,
+} from '@/lib/rbac';
+import {
   Search,
   Filter,
   Layers,
@@ -24,6 +29,7 @@ interface ListViewProps {
   project: any;
   tasks: any[];
   currentUser: any;
+  permissions: ProjectPermissions;
   isDark: boolean;
   onSelectTask: (task: any) => void;
   onTaskUpdated: (updatedTask: any) => void;
@@ -81,6 +87,7 @@ export function ListView({
   project,
   tasks,
   currentUser,
+  permissions,
   isDark,
   onSelectTask,
   onTaskUpdated,
@@ -227,6 +234,8 @@ export function ListView({
     const res = await updateTaskFields(task.id, project.id, patch);
     if (res.success && res.task) {
       onTaskUpdated(res.task);
+    } else if (res.error) {
+      alert(res.error);
     }
   };
 
@@ -615,14 +624,15 @@ export function ListView({
                               </div>
                               <select
                                 value={task.assigneeId || ''}
+                                disabled={!permissions.canAssignOthers}
                                 onChange={(e) =>
                                   handleInlineFieldUpdate(task, {
                                     assigneeId: e.target.value || null,
                                   })
                                 }
-                                className={`bg-transparent text-xs font-medium focus:outline-none cursor-pointer max-w-[120px] truncate ${
-                                  isDark ? 'text-[#B6C2CF]' : 'text-gray-800'
-                                }`}
+                                className={`bg-transparent text-xs font-medium focus:outline-none max-w-[120px] truncate disabled:opacity-75 disabled:cursor-default ${
+                                  permissions.canAssignOthers ? 'cursor-pointer' : ''
+                                } ${isDark ? 'text-[#B6C2CF]' : 'text-gray-800'}`}
                               >
                                 <option
                                   value=""
@@ -663,44 +673,65 @@ export function ListView({
                           <td className="py-2.5 px-3 whitespace-nowrap">
                             <div className="relative inline-flex items-center">
                               {renderPriorityBadge(task.priority)}
-                              <select
-                                value={task.priority}
-                                onChange={(e) =>
-                                  handleInlineFieldUpdate(task, { priority: e.target.value })
-                                }
-                                aria-label="Đổi độ ưu tiên"
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                              >
-                                <option value="BLOCKER">Highest</option>
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
-                              </select>
+                              {permissions.canEditTaskMeta && (
+                                <select
+                                  value={task.priority}
+                                  onChange={(e) =>
+                                    handleInlineFieldUpdate(task, { priority: e.target.value })
+                                  }
+                                  aria-label="Đổi độ ưu tiên"
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                >
+                                  <option value="BLOCKER">Highest</option>
+                                  <option value="HIGH">High</option>
+                                  <option value="MEDIUM">Medium</option>
+                                  <option value="LOW">Low</option>
+                                </select>
+                              )}
                             </div>
                           </td>
 
                           {/* Status (inline pill dropdown like Jira!) */}
                           <td className="py-2.5 px-3 whitespace-nowrap">
-                            <select
-                              value={task.columnId}
-                              onChange={(e) =>
-                                handleInlineFieldUpdate(task, { columnId: e.target.value })
-                              }
-                              className={`px-2.5 py-1 rounded text-[11px] font-bold border focus:outline-none cursor-pointer ${getStatusBadgeClass(
-                                statusTitle,
-                                isDark
-                              )}`}
-                            >
-                              {project.columns.map((c: any) => (
-                                <option
-                                  key={c.id}
-                                  value={c.id}
-                                  className={isDark ? 'bg-[#22272B] text-white' : 'bg-white text-gray-900'}
+                            {(() => {
+                              const canChangeStatus = canUserModifyTaskStatus(
+                                permissions.role,
+                                task.assigneeId,
+                                currentUser?.id
+                              );
+                              return (
+                                <select
+                                  value={task.columnId}
+                                  disabled={!canChangeStatus}
+                                  onChange={(e) =>
+                                    handleInlineFieldUpdate(task, { columnId: e.target.value })
+                                  }
+                                  className={`px-2.5 py-1 rounded text-[11px] font-bold border focus:outline-none disabled:opacity-70 disabled:cursor-default ${
+                                    canChangeStatus ? 'cursor-pointer' : ''
+                                  } ${getStatusBadgeClass(statusTitle, isDark)}`}
                                 >
-                                  {c.title}
-                                </option>
-                              ))}
-                            </select>
+                                  {project.columns.map((c: any) => {
+                                    const lockedDone =
+                                      isDoneColumnTitle(c.title) && !permissions.canMoveToDone;
+                                    return (
+                                      <option
+                                        key={c.id}
+                                        value={c.id}
+                                        disabled={lockedDone}
+                                        className={
+                                          isDark
+                                            ? 'bg-[#22272B] text-white'
+                                            : 'bg-white text-gray-900'
+                                        }
+                                      >
+                                        {c.title}
+                                        {lockedDone ? ' (Chỉ PM/Admin)' : ''}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              );
+                            })()}
                           </td>
 
                           {/* Created */}
@@ -738,13 +769,20 @@ export function ListView({
         </table>
       </div>
 
-      {/* Bottom Quick Create Bar (Giống hệt Jira + Create ở góc dưới trái!) */}
+      {/* Bottom Quick Create Bar (Hidden for VIEWER) */}
       <div
         className={`px-6 py-2.5 border-t shrink-0 ${
           isDark ? 'bg-[#1D2125] border-[#2C333A]' : 'bg-gray-50 border-gray-200'
         }`}
       >
-        {!isQuickCreating ? (
+        {!permissions.canCreateTask ? (
+          <div className="flex items-center justify-between text-[11px] opacity-70">
+            <span>👁️ Chế độ chỉ xem (VIEWER)</span>
+            <span className="font-mono">
+              {filteredTasks.length} of {tasks.length}
+            </span>
+          </div>
+        ) : !isQuickCreating ? (
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsQuickCreating(true)}

@@ -6,12 +6,14 @@ import {
   updateProjectMemberRole,
   removeProjectMember,
 } from '@/app/actions/member-actions';
+import { ProjectPermissions } from '@/lib/rbac';
 import { UserPlus, Trash2, Shield, X, Mail, Users } from 'lucide-react';
 
 interface MembersViewProps {
   project: any;
   allUsers: any[];
   tasks: any[];
+  permissions: ProjectPermissions;
   isDark: boolean;
   onMemberAdded: (member: any) => void;
   onMemberUpdated: (member: any) => void;
@@ -22,6 +24,7 @@ export function MembersView({
   project,
   allUsers,
   tasks,
+  permissions,
   isDark,
   onMemberAdded,
   onMemberUpdated,
@@ -98,16 +101,18 @@ export function MembersView({
               Thêm thành viên tham gia dự án để giao việc (Assignee) và phân quyền quản lý.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setMode(availableUsers.length > 0 ? 'EXISTING' : 'NEW');
-              setErrorMsg('');
-              setIsAddOpen(true);
-            }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-sm cursor-pointer"
-          >
-            <UserPlus className="w-4 h-4" /> Thêm Thành Viên
-          </button>
+          {permissions.canAddMember && (
+            <button
+              onClick={() => {
+                setMode(availableUsers.length > 0 ? 'EXISTING' : 'NEW');
+                setErrorMsg('');
+                setIsAddOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-sm cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" /> Thêm Thành Viên
+            </button>
+          )}
         </div>
 
         {/* Members List */}
@@ -161,9 +166,11 @@ export function MembersView({
                     <Shield className="w-3.5 h-3.5 text-[#579DFF]" />
                     <select
                       value={m.role}
-                      disabled={isOwner}
+                      disabled={isOwner || !permissions.canManageMemberRoles}
                       onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                      className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none cursor-pointer disabled:opacity-60 ${
+                      className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold focus:outline-none disabled:opacity-60 ${
+                        !isOwner && permissions.canManageMemberRoles ? 'cursor-pointer' : 'cursor-default'
+                      } ${
                         isDark
                           ? 'bg-[#1D2125] border-[#38414A] text-white'
                           : 'bg-white border-gray-300 text-gray-800'
@@ -176,7 +183,7 @@ export function MembersView({
                     </select>
                   </div>
 
-                  {!isOwner && (
+                  {!isOwner && permissions.canManageMemberRoles && (
                     <button
                       onClick={() => handleRemove(m)}
                       className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
@@ -184,7 +191,7 @@ export function MembersView({
                           ? 'text-[#8C9BAB] hover:text-red-400 hover:bg-red-500/10'
                           : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
                       }`}
-                      title="Gỡ khỏi dự án"
+                      title="Gỡ khỏi dự án (Chỉ ADMIN)"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

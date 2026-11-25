@@ -1,10 +1,21 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+import {
+  getProjectPermissions,
+  canUserModifyTaskStatus,
+  canUserToggleChecklist,
+  isDoneColumnTitle,
+} from '@/lib/rbac';
+import { resolveUserProjectRole } from './project-actions';
 import { revalidatePath } from 'next/cache';
 
 export async function updateTaskColumn(taskId: string, targetColumnId: string, newOrderIndex: number) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
     const currentTask = await prisma.task.findUnique({
       where: { id: taskId },
       include: { column: true },
@@ -12,6 +23,31 @@ export async function updateTaskColumn(taskId: string, targetColumnId: string, n
 
     if (!currentTask) {
       return { success: false, error: 'Task không tồn tại' };
+    }
+
+    const role = await resolveUserProjectRole(currentTask.projectId, user.id);
+    if (!role) return { success: false, error: 'Bạn không thuộc dự án này' };
+
+    if (!canUserModifyTaskStatus(role, currentTask.assigneeId, user.id)) {
+      return {
+        success: false,
+        error:
+          role === 'VIEWER'
+            ? 'Tài khoản VIEWER chỉ có quyền xem!'
+            : 'MEMBER chỉ được đổi trạng thái công việc được giao cho mình!',
+      };
+    }
+
+    const targetCol = await prisma.kanbanColumn.findUnique({
+      where: { id: targetColumnId },
+    });
+    if (!targetCol) return { success: false, error: 'Cột trạng thái không tồn tại' };
+
+    if (isDoneColumnTitle(targetCol.title) && !getProjectPermissions(role).canMoveToDone) {
+      return {
+        success: false,
+        error: 'Chỉ PM hoặc ADMIN mới được chốt duyệt chuyển sang Done! Hãy chuyển sang In Review.',
+      };
     }
 
     const isColumnChanged = currentTask.columnId !== targetColumnId;
@@ -39,7 +75,7 @@ export async function updateTaskColumn(taskId: string, targetColumnId: string, n
       await prisma.activityLog.create({
         data: {
           taskId,
-          userId: currentTask.reporterId,
+          userId: user.id,
           action: 'STATUS_CHANGED',
           detailsJson: JSON.stringify({
             from: currentTask.column.title,
@@ -74,6 +110,58 @@ export async function updateTaskFields(
   }
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(projectId, user.id);
+    if (!role) return { success: false, error: 'Bạn không thuộc dự án này' };
+    const perms = getProjectPermissions(role);
+
+    if (perms.isReadOnly) {
+      return { success: false, error: 'Tài khoản VIEWER chỉ có quyền xem!' };
+    }
+
+    const existingTask = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!existingTask) return { success: false, error: 'Task không tồn tại' };
+
+    // Kiểm tra quyền sửa Priority / Risk / DueDate
+    if (
+      (data.priority !== undefined || data.riskLevel !== undefined || data.dueDate !== undefined) &&
+      !perms.canEditTaskMeta
+    ) {
+      return {
+        success: false,
+        error: 'Chỉ ADMIN hoặc PM mới có quyền thay đổi Priority, Risk hoặc Hạn chót!',
+      };
+    }
+
+    // Kiểm tra quyền đổi Assignee
+    if (data.assigneeId !== undefined && !perms.canAssignOthers) {
+      if (data.assigneeId && data.assigneeId !== user.id) {
+        return {
+          success: false,
+          error: 'MEMBER chỉ có thể tự nhận việc cho bản thân, không thể giao cho người khác!',
+        };
+      }
+    }
+
+    // Kiểm tra quyền đổi Status / Done
+    if (data.columnId !== undefined) {
+      if (!canUserModifyTaskStatus(role, existingTask.assigneeId, user.id)) {
+        return {
+          success: false,
+          error: 'MEMBER chỉ được đổi trạng thái công việc được giao cho mình!',
+        };
+      }
+      const targetCol = await prisma.kanbanColumn.findUnique({ where: { id: data.columnId } });
+      if (targetCol && isDoneColumnTitle(targetCol.title) && !perms.canMoveToDone) {
+        return {
+          success: false,
+          error: 'Chỉ PM hoặc ADMIN mới được chốt duyệt chuyển sang Done! Hãy chuyển sang In Review.',
+        };
+      }
+    }
+
     const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title.trim();
     if (data.description !== undefined) updateData.description = data.description;
@@ -112,6 +200,14 @@ export async function updateTaskFields(
 
 export async function deleteTask(taskId: string, projectId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(projectId, user.id);
+    if (!getProjectPermissions(role).canDeleteTask) {
+      return { success: false, error: 'Chỉ ADMIN hoặc PM mới có quyền xóa Task!' };
+    }
+
     await prisma.task.delete({ where: { id: taskId } });
     revalidatePath(`/projects/${projectId}`);
     revalidatePath('/');
@@ -124,12 +220,29 @@ export async function deleteTask(taskId: string, projectId: string) {
 
 export async function toggleChecklistItem(checklistId: string, isCompleted: boolean) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const item = await prisma.taskChecklist.findUnique({
+      where: { id: checklistId },
+      include: { task: true },
+    });
+    if (!item) return { success: false, error: 'Checklist không tồn tại' };
+
+    const role = await resolveUserProjectRole(item.task.projectId, user.id);
+    if (!canUserToggleChecklist(role, item.task.assigneeId, user.id)) {
+      return {
+        success: false,
+        error: 'Bạn không có quyền tick Checklist của công việc này!',
+      };
+    }
+
     const updated = await prisma.taskChecklist.update({
       where: { id: checklistId },
       data: { isCompleted },
     });
 
-    revalidatePath('/');
+    revalidatePath(`/projects/${item.task.projectId}`);
     return { success: true, checklist: updated };
   } catch (error) {
     console.error('Lỗi cập nhật Checklist:', error);
@@ -139,6 +252,17 @@ export async function toggleChecklistItem(checklistId: string, isCompleted: bool
 
 export async function addChecklistItem(taskId: string, title: string, projectId?: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) return { success: false, error: 'Task không tồn tại' };
+
+    const role = await resolveUserProjectRole(task.projectId, user.id);
+    if (!canUserToggleChecklist(role, task.assigneeId, user.id)) {
+      return { success: false, error: 'Bạn không có quyền thêm Checklist cho công việc này!' };
+    }
+
     if (!title.trim()) return { success: false, error: 'Nội dung không được để trống' };
     const count = await prisma.taskChecklist.count({ where: { taskId } });
     const item = await prisma.taskChecklist.create({
@@ -170,6 +294,15 @@ export async function createQuickTask(data: {
   dueDate?: string;
 }) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(data.projectId, user.id);
+    const perms = getProjectPermissions(role);
+    if (!perms.canCreateTask) {
+      return { success: false, error: 'Tài khoản VIEWER không có quyền tạo Task mới!' };
+    }
+
     const project = await prisma.project.findUnique({
       where: { id: data.projectId },
       include: { owner: true },
@@ -184,7 +317,11 @@ export async function createQuickTask(data: {
 
     const nextNumber = (maxTask?.taskNumber || 0) + 1;
     const issueKey = `${project.projectKey}-${nextNumber}`;
-    const reporterId = data.reporterId || project.ownerId;
+
+    // MEMBER chỉ được gán cho chính mình khi tạo task
+    const safeAssigneeId = perms.canAssignOthers
+      ? data.assigneeId || user.id
+      : user.id;
 
     const newTask = await prisma.task.create({
       data: {
@@ -194,14 +331,14 @@ export async function createQuickTask(data: {
         title: data.title.trim(),
         description: data.description?.trim() || '',
         columnId: data.columnId,
-        priority: data.priority || 'MEDIUM',
-        riskLevel: data.riskLevel || 'LOW',
+        priority: perms.canEditTaskMeta ? data.priority || 'MEDIUM' : 'MEDIUM',
+        riskLevel: perms.canEditTaskMeta ? data.riskLevel || 'LOW' : 'LOW',
         issueType: data.issueType || 'TASK',
         milestoneId: data.milestoneId || null,
-        reporterId,
-        assigneeId: data.assigneeId || reporterId,
+        reporterId: user.id,
+        assigneeId: safeAssigneeId,
         orderIndex: Date.now() % 100000,
-        dueDate: data.dueDate ? new Date(data.dueDate) : null,
+        dueDate: perms.canEditTaskMeta && data.dueDate ? new Date(data.dueDate) : null,
       },
       include: {
         column: true,
@@ -219,7 +356,7 @@ export async function createQuickTask(data: {
     await prisma.activityLog.create({
       data: {
         taskId: newTask.id,
-        userId: reporterId,
+        userId: user.id,
         action: 'CREATED',
         detailsJson: JSON.stringify({ message: `Đã tạo task mới ${issueKey}` }),
       },

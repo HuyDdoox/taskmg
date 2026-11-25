@@ -1,6 +1,8 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+import { getProjectPermissions, ProjectRole } from '@/lib/rbac';
 import { revalidatePath } from 'next/cache';
 
 const DEFAULT_COLUMNS = [
@@ -10,9 +12,39 @@ const DEFAULT_COLUMNS = [
   { title: 'Done', position: 3, colorHex: '#10B981' },
 ];
 
+export async function resolveUserProjectRole(
+  projectId: string,
+  userId: string
+): Promise<ProjectRole | null> {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { ownerId: true },
+  });
+  if (!project) return null;
+  if (project.ownerId === userId) return 'ADMIN';
+
+  const member = await prisma.projectMember.findUnique({
+    where: { projectId_userId: { projectId, userId } },
+    select: { role: true },
+  });
+  if (!member) return null;
+  return member.role as ProjectRole;
+}
+
 export async function getAllProjects() {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, projects: [], error: 'Vui lòng đăng nhập' };
+    }
+
     const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { ownerId: user.id },
+          { members: { some: { userId: user.id } } },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
       include: {
         owner: true,
@@ -35,7 +67,13 @@ export async function getAllProjects() {
       },
     });
 
-    return { success: true, projects };
+    const enriched = projects.map((p) => {
+      const myMember = p.members.find((m) => m.userId === user.id);
+      const myRole = p.ownerId === user.id ? 'ADMIN' : myMember?.role || 'VIEWER';
+      return { ...p, myRole };
+    });
+
+    return { success: true, projects: enriched };
   } catch (error: any) {
     console.error('Lỗi lấy danh sách dự án:', error);
     return {
@@ -48,6 +86,19 @@ export async function getAllProjects() {
 
 export async function getProjectById(projectId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: 'Chưa đăng nhập' };
+    }
+
+    const userRole = await resolveUserProjectRole(projectId, user.id);
+    if (!userRole) {
+      return {
+        success: false,
+        error: 'Bạn không có quyền truy cập dự án này (Chưa được mời tham gia).',
+      };
+    }
+
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
@@ -87,7 +138,7 @@ export async function getProjectById(projectId: string) {
       return { success: false, error: 'Không tìm thấy dự án' };
     }
 
-    return { success: true, project };
+    return { success: true, project, userRole };
   } catch (error: any) {
     console.error('Lỗi lấy chi tiết dự án:', error);
     return {
@@ -101,9 +152,13 @@ export async function createProject(data: {
   name: string;
   projectKey: string;
   description?: string;
-  ownerId?: string;
 }) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: 'Vui lòng đăng nhập để tạo dự án' };
+    }
+
     const name = data.name.trim();
     const rawKey = data.projectKey
       .trim()
@@ -126,36 +181,18 @@ export async function createProject(data: {
       return { success: false, error: `Mã dự án "${rawKey}" đã tồn tại, hãy chọn mã khác` };
     }
 
-    // Tìm owner mặc định nếu không truyền vào
-    let ownerId = data.ownerId;
-    if (!ownerId) {
-      const firstUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
-      if (firstUser) {
-        ownerId = firstUser.id;
-      } else {
-        const defaultUser = await prisma.user.create({
-          data: {
-            email: 'admin@taskmg.com',
-            fullName: 'Quản Trị Viên',
-            passwordHash: 'default-admin',
-          },
-        });
-        ownerId = defaultUser.id;
-      }
-    }
-
     const project = await prisma.project.create({
       data: {
         name,
         projectKey: rawKey,
         description: data.description?.trim() || '',
-        ownerId,
+        ownerId: user.id,
         columns: {
           create: DEFAULT_COLUMNS,
         },
         members: {
           create: {
-            userId: ownerId,
+            userId: user.id,
             role: 'ADMIN',
           },
         },
@@ -180,7 +217,7 @@ export async function createProject(data: {
     });
 
     revalidatePath('/');
-    return { success: true, project };
+    return { success: true, project: { ...project, myRole: 'ADMIN' } };
   } catch (error: any) {
     console.error('Lỗi tạo dự án:', error);
     return { success: false, error: error?.message || 'Không thể tạo dự án mới' };
@@ -189,6 +226,14 @@ export async function createProject(data: {
 
 export async function deleteProject(projectId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(projectId, user.id);
+    if (!getProjectPermissions(role).canDeleteProject) {
+      return { success: false, error: 'Chỉ ADMIN (Chủ dự án) mới có quyền xóa dự án!' };
+    }
+
     await prisma.project.delete({ where: { id: projectId } });
     revalidatePath('/');
     return { success: true };
@@ -206,6 +251,14 @@ export async function createMilestone(data: {
   status?: string;
 }) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(data.projectId, user.id);
+    if (!getProjectPermissions(role).canManageMilestones) {
+      return { success: false, error: 'Chỉ ADMIN hoặc PM mới có quyền tạo Giai đoạn (Milestone)!' };
+    }
+
     if (!data.title.trim()) {
       return { success: false, error: 'Tên giai đoạn không được để trống' };
     }

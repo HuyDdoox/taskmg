@@ -1,4 +1,6 @@
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import { getAllProjects } from './actions/project-actions';
 import { ProjectsDashboard } from '@/components/projects/ProjectsDashboard';
 
@@ -6,6 +8,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 async function SpacesLoader() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    redirect('/login');
+  }
+
   const data = await getAllProjects();
 
   if (!data.success) {
@@ -26,7 +33,7 @@ async function SpacesLoader() {
     );
   }
 
-  return <ProjectsDashboard initialProjects={data.projects} />;
+  return <ProjectsDashboard initialProjects={data.projects} currentUser={currentUser} />;
 }
 
 export default function HomePage() {
