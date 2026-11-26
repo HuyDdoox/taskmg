@@ -8,6 +8,8 @@ import { getProjectPermissions, getRoleBadgeStyle, ProjectRole } from '@/lib/rba
 import { getProjectVisual } from '@/lib/project-icons';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { useSocket } from '@/hooks/useSocket';
+import { emitRealtimeEvent } from '@/lib/socket';
 import { SummaryView } from './SummaryView';
 import { ListView } from './ListView';
 import { TimelineView } from './TimelineView';
@@ -43,30 +45,14 @@ export function ProjectWorkspace({
   const [createColumnId, setCreateColumnId] = useState<string>('');
 
   const permissions = useMemo(() => getProjectPermissions(userRole), [userRole]);
+  const { socket } = useSocket({ projectId: project.id, userId: currentUser.id });
 
   useEffect(() => {
     const saved = localStorage.getItem('taskmg-theme');
     if (saved === 'light') setIsDark(false);
   }, []);
 
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    localStorage.setItem('taskmg-theme', next ? 'dark' : 'light');
-  };
-
-  const handleLogout = async () => {
-    await logoutAction();
-    router.push('/login');
-    router.refresh();
-  };
-
-  const allTasks = useMemo(
-    () => (project.columns || []).flatMap((c: any) => c.tasks || []),
-    [project.columns]
-  );
-
-  const handleTaskMovedState = (
+  const applyTaskMovedLocal = (
     taskId: string,
     targetColumnId: string,
     orderIndex: number
@@ -93,6 +79,132 @@ export function ProjectWorkspace({
     });
   };
 
+  // Lắng nghe sự kiện Realtime từ Render Server v2.0
+  useEffect(() => {
+    if (!socket) return;
+
+    const onRemoteTaskMoved = (data: any) => {
+      if (data?.taskId && data?.targetColumnId) {
+        applyTaskMovedLocal(data.taskId, data.targetColumnId, data.orderIndex || 1000);
+      }
+    };
+
+    const onRemoteTaskCreated = (data: any) => {
+      if (!data?.task) return;
+      const newTask = data.task;
+      setProject((prev: any) => ({
+        ...prev,
+        columns: prev.columns.map((col: any) => {
+          if (col.id !== newTask.columnId) return col;
+          const exists = (col.tasks || []).some((t: any) => t.id === newTask.id);
+          return exists ? col : { ...col, tasks: [...(col.tasks || []), newTask] };
+        }),
+      }));
+    };
+
+    const onRemoteBulkCreated = (data: any) => {
+      if (!Array.isArray(data?.tasks)) return;
+      const incoming = data.tasks;
+      setProject((prev: any) => ({
+        ...prev,
+        columns: prev.columns.map((col: any) => {
+          const existingIds = new Set((col.tasks || []).map((t: any) => t.id));
+          const added = incoming.filter(
+            (t: any) => t.columnId === col.id && !existingIds.has(t.id)
+          );
+          return added.length > 0
+            ? { ...col, tasks: [...(col.tasks || []), ...added] }
+            : col;
+        }),
+      }));
+    };
+
+    const onRemoteTaskUpdated = (data: any) => {
+      if (!data?.task) return;
+      const updatedTask = data.task;
+      setProject((prev: any) => ({
+        ...prev,
+        columns: prev.columns.map((col: any) => {
+          const filtered = (col.tasks || []).filter((t: any) => t.id !== updatedTask.id);
+          if (col.id === updatedTask.columnId) {
+            return { ...col, tasks: [...filtered, updatedTask] };
+          }
+          return { ...col, tasks: filtered };
+        }),
+      }));
+      setSelectedTask((curr: any) => (curr?.id === updatedTask.id ? updatedTask : curr));
+    };
+
+    const onRemoteTaskDeleted = (data: any) => {
+      if (!data?.taskId) return;
+      setProject((prev: any) => ({
+        ...prev,
+        columns: prev.columns.map((col: any) => ({
+          ...col,
+          tasks: (col.tasks || []).filter((t: any) => t.id !== data.taskId),
+        })),
+      }));
+      setSelectedTask((curr: any) => (curr?.id === data.taskId ? null : curr));
+    };
+
+    const onRemoteMilestoneCreated = (data: any) => {
+      if (!data?.milestone) return;
+      setProject((prev: any) => {
+        const exists = (prev.milestones || []).some((m: any) => m.id === data.milestone.id);
+        return exists
+          ? prev
+          : { ...prev, milestones: [...(prev.milestones || []), data.milestone] };
+      });
+    };
+
+    socket.on('task_moved', onRemoteTaskMoved);
+    socket.on('task_created', onRemoteTaskCreated);
+    socket.on('bulk_tasks_created', onRemoteBulkCreated);
+    socket.on('task_updated', onRemoteTaskUpdated);
+    socket.on('task_deleted', onRemoteTaskDeleted);
+    socket.on('milestone_created', onRemoteMilestoneCreated);
+
+    return () => {
+      socket.off('task_moved', onRemoteTaskMoved);
+      socket.off('task_created', onRemoteTaskCreated);
+      socket.off('bulk_tasks_created', onRemoteBulkCreated);
+      socket.off('task_updated', onRemoteTaskUpdated);
+      socket.off('task_deleted', onRemoteTaskDeleted);
+      socket.off('milestone_created', onRemoteMilestoneCreated);
+    };
+  }, [socket]);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    localStorage.setItem('taskmg-theme', next ? 'dark' : 'light');
+  };
+
+  const handleLogout = async () => {
+    await logoutAction();
+    router.push('/login');
+    router.refresh();
+  };
+
+  const allTasks = useMemo(
+    () => (project.columns || []).flatMap((c: any) => c.tasks || []),
+    [project.columns]
+  );
+
+  const handleTaskMovedState = (
+    taskId: string,
+    targetColumnId: string,
+    orderIndex: number
+  ) => {
+    applyTaskMovedLocal(taskId, targetColumnId, orderIndex);
+    emitRealtimeEvent('task_moved', {
+      projectId: project.id,
+      taskId,
+      targetColumnId,
+      orderIndex,
+    });
+  };
+
   const handleTaskCreated = (newTask: any) => {
     setProject((prev: any) => ({
       ...prev,
@@ -102,6 +214,13 @@ export function ProjectWorkspace({
           : col
       ),
     }));
+    emitRealtimeEvent('task_created', { projectId: project.id, task: newTask });
+    if (newTask?.assigneeId) {
+      emitRealtimeEvent('notification_dispatch', {
+        projectId: project.id,
+        userIds: [newTask.assigneeId],
+      });
+    }
   };
 
   const handleBulkTasksCreated = (newTasks: any[]) => {
@@ -114,6 +233,7 @@ export function ProjectWorkspace({
           : col;
       }),
     }));
+    emitRealtimeEvent('bulk_tasks_created', { projectId: project.id, tasks: newTasks });
   };
 
   const handleTaskUpdated = (updatedTask: any) => {
@@ -130,6 +250,7 @@ export function ProjectWorkspace({
     if (selectedTask?.id === updatedTask.id) {
       setSelectedTask(updatedTask);
     }
+    emitRealtimeEvent('task_updated', { projectId: project.id, task: updatedTask });
   };
 
   const handleTaskDeleted = (taskId: string) => {
@@ -140,6 +261,7 @@ export function ProjectWorkspace({
         tasks: (col.tasks || []).filter((t: any) => t.id !== taskId),
       })),
     }));
+    emitRealtimeEvent('task_deleted', { projectId: project.id, taskId });
   };
 
   const handleMilestoneCreated = (milestone: any) => {
@@ -147,6 +269,7 @@ export function ProjectWorkspace({
       ...prev,
       milestones: [...(prev.milestones || []), milestone],
     }));
+    emitRealtimeEvent('milestone_created', { projectId: project.id, milestone });
   };
 
   const handleMemberAdded = (member: any) => {
@@ -154,6 +277,13 @@ export function ProjectWorkspace({
       ...prev,
       members: [...(prev.members || []), member],
     }));
+    emitRealtimeEvent('member_changed', { projectId: project.id, member });
+    if (member?.userId) {
+      emitRealtimeEvent('notification_dispatch', {
+        projectId: project.id,
+        userIds: [member.userId],
+      });
+    }
   };
 
   const handleMemberUpdated = (updatedMember: any) => {

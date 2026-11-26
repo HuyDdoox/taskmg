@@ -23,7 +23,8 @@
 
 ---
 
-## 🌐 HẠ TẦNG CLOUD ĐANG VẬN HÀNH
-- **Fullstack Hosting:** Vercel Production (`bom1` Mumbai — tối ưu độ trễ với CSDL).
+## 🌐 HẠ TẦNG TAM GIÁC CLOUD ĐANG VẬN HÀNH (3-CLOUD ARCHITECTURE)
+- **Fullstack Hosting (FE & Server Actions):** Vercel Production (`bom1` Mumbai — tối ưu độ trễ với CSDL).
+- **Máy chủ Realtime WebSocket (v2.0):** Render Web Service (`server/index.js` — đồng bộ kéo thả Kanban, tạo Task lẻ/hàng loạt, sửa Task Drawer, Checklist & đẩy tín hiệu Chuông thông báo 🔔 Non-Blocking).
 - **Cơ sở dữ liệu:** Supabase PostgreSQL Cloud (`ap-south-1` — kết nối qua IPv4 Pooler `6543`).
 - **Kho lưu trữ mã nguồn:** GitHub [https://github.com/HuyDdoox/taskmg.git](https://github.com/HuyDdoox/taskmg.git).

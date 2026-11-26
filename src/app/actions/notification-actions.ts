@@ -30,6 +30,30 @@ export async function createAndDispatchNotifications(params: {
       })),
     });
 
+    // Bắn tín hiệu non-blocking sang Render Realtime Server v2.0 (timeout 1.5s để không bao giờ giữ luồng Server Action)
+    const renderUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL || 'https://taskmg-backend.onrender.com';
+    Promise.allSettled(
+      uniqueIds.map((uid) =>
+        fetch(`${renderUrl}/api/broadcast`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            room: `user_${uid}`,
+            event: 'notification_received',
+            payload: {
+              userId: uid,
+              projectId: params.projectId || null,
+              taskId: params.taskId || null,
+              type: params.type,
+              title: params.title,
+            },
+          }),
+          signal: AbortSignal.timeout(1500),
+        })
+      )
+    ).catch(() => {});
+
     return { success: true, count: uniqueIds.length };
   } catch (error) {
     console.error('Lỗi tạo thông báo:', error);

@@ -7,6 +7,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from '@/app/actions/notification-actions';
+import { getSocket } from '@/lib/socket';
 
 interface NotificationBellProps {
   isDark?: boolean;
@@ -31,6 +32,18 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
 
   useEffect(() => {
     loadNotifications();
+
+    const s = getSocket();
+    const handleRealtimeNotif = () => {
+      loadNotifications();
+    };
+    s.on('notification_received', handleRealtimeNotif);
+    window.addEventListener('taskmg:notification', handleRealtimeNotif);
+
+    return () => {
+      s.off('notification_received', handleRealtimeNotif);
+      window.removeEventListener('taskmg:notification', handleRealtimeNotif);
+    };
   }, []);
 
   useEffect(() => {
