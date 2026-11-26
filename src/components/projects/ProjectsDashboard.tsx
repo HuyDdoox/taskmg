@@ -23,7 +23,8 @@ const AVATAR_COLORS = [
 
 function getInitials(name?: string) {
   if (!name) return 'U';
-  const parts = name.trim().split(/\s+/);
+  const cleaned = name.replace(/\([^)]*\)/g, '').trim();
+  const parts = (cleaned || name.trim()).split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
@@ -264,7 +265,10 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
             {filtered.map((project: any) => {
               const totalTasks = project._count?.tasks ?? 0;
               const doneColumn = project.columns?.find(
-                (c: any) => c.title.toLowerCase() === 'done' || c.position === 3
+                (c: any) =>
+                  c.title.toLowerCase().includes('done') ||
+                  c.title.toLowerCase().includes('hoàn thành') ||
+                  c.position === 3
               );
               const doneTasks = doneColumn?._count?.tasks ?? 0;
               const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
