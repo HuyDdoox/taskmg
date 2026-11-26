@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { getProjectPermissions } from '@/lib/rbac';
-import { sendInviteSetPasswordEmail } from '@/lib/mailer';
 import { resolveUserProjectRole } from './project-actions';
 import { createAndDispatchNotifications } from './notification-actions';
 import { revalidatePath } from 'next/cache';
@@ -102,47 +101,21 @@ export async function addProjectMember(data: {
       include: { user: true, project: true },
     });
 
-    let emailSent = false;
-    if (isBrandNewUser && generatedInviteToken) {
-      const mailRes = await sendInviteSetPasswordEmail({
-        to: member.user.email,
-        recipientName: member.user.fullName,
-        inviterName: currentUser.fullName,
-        projectName: member.project.name,
-        projectKey: member.project.projectKey,
-        role: safeRole,
-        inviteToken: generatedInviteToken,
-      });
-      emailSent = mailRes.sent;
-
-      // Vẫn tạo thông báo trong App để khi user đặt mật khẩu xong sẽ thấy
-      await prisma.notification.create({
-        data: {
-          userId: targetUserId,
-          projectId: data.projectId,
-          type: 'PROJECT_INVITED',
-          title: `Chào mừng tới dự án [${member.project.projectKey}]`,
-          message: `${currentUser.fullName} đã mời bạn tham gia "${member.project.name}" với vai trò ${safeRole}.`,
-        },
-      });
-    } else {
-      await createAndDispatchNotifications({
-        userIds: [targetUserId],
-        excludeUserId: currentUser.id,
-        projectId: data.projectId,
-        type: 'PROJECT_INVITED',
-        title: `Bạn được mời vào dự án [${member.project.projectKey}]`,
-        message: `${currentUser.fullName} đã thêm bạn vào dự án "${member.project.name}" với vai trò ${safeRole}.`,
-      });
-    }
+    await createAndDispatchNotifications({
+      userIds: [targetUserId],
+      excludeUserId: currentUser.id,
+      projectId: data.projectId,
+      type: 'PROJECT_INVITED',
+      title: `Bạn được mời vào dự án [${member.project.projectKey}]`,
+      message: `${currentUser.fullName} đã thêm bạn vào dự án "${member.project.name}" với vai trò ${safeRole}.`,
+    });
 
     revalidatePath(`/projects/${data.projectId}`);
-    revalidatePath('/');
+    revalidatePath('/spaces');
     return {
       success: true,
       member,
       isBrandNewUser,
-      emailSent,
       invitePath: generatedInviteToken ? `/accept-invite?token=${generatedInviteToken}` : undefined,
     };
   } catch (error: any) {

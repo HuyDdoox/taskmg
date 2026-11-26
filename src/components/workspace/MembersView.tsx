@@ -147,9 +147,7 @@ export function MembersView({
                 ✅ Đã mời {inviteBanner.name} ({inviteBanner.email})!
               </div>
               <div className="opacity-85">
-                {inviteBanner.emailSent
-                  ? 'Đã gửi Email tự đặt mật khẩu tới Gmail của họ. Bạn cũng có thể copy link bên dưới để gửi trực tiếp:'
-                  : 'Copy đường dẫn bên dưới gửi cho thành viên để họ tự đặt mật khẩu và vào dự án:'}
+                Copy đường dẫn bên dưới gửi cho thành viên để họ tự đặt mật khẩu và vào thẳng dự án:
               </div>
               <div className="font-mono text-[11px] truncate opacity-80">{inviteBanner.link}</div>
             </div>

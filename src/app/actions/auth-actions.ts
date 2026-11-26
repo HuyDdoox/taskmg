@@ -1,14 +1,8 @@
 'use server';
 
-import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { createSession, clearSession, hashPassword, verifyPassword } from '@/lib/auth';
-import { sendOtpEmail } from '@/lib/mailer';
 import { revalidatePath } from 'next/cache';
-
-function generateOtp(): string {
-  return String(crypto.randomInt(100000, 999999));
-}
 
 export async function loginAction(emailInput: string, password: string) {
   try {
@@ -20,25 +14,6 @@ export async function loginAction(emailInput: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !verifyPassword(password, user.passwordHash)) {
       return { success: false, error: 'Email hoặc mật khẩu không chính xác' };
-    }
-
-    if (!user.emailVerified) {
-      const otp = generateOtp();
-      const verifyOtpExp = new Date(Date.now() + 10 * 60 * 1000);
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { verifyOtp: otp, verifyOtpExp },
-      });
-      const mailRes = await sendOtpEmail(user.email, user.fullName, otp);
-      return {
-        success: false,
-        requiresOtp: true,
-        email: user.email,
-        devOtp: mailRes.sent ? undefined : otp,
-        error: mailRes.sent
-          ? 'Tài khoản chưa xác nhận Gmail. Em đã gửi mã OTP mới tới hộp thư của bạn!'
-          : 'Tài khoản chưa xác nhận Gmail (SMTP chưa cấu hình, dùng mã OTP hiển thị bên dưới).',
-      };
     }
 
     await createSession(user.id);
@@ -73,90 +48,24 @@ export async function registerAction(fullNameInput: string, emailInput: string, 
       return { success: false, error: 'Email này đã được đăng ký' };
     }
 
-    const otp = generateOtp();
-    const verifyOtpExp = new Date(Date.now() + 10 * 60 * 1000);
-
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         fullName,
         email,
         passwordHash: hashPassword(password),
-        emailVerified: false,
-        verifyOtp: otp,
-        verifyOtpExp,
-      },
-    });
-
-    const mailRes = await sendOtpEmail(email, fullName, otp);
-
-    return {
-      success: true,
-      requiresOtp: true,
-      email,
-      emailSent: mailRes.sent,
-      devOtp: mailRes.sent ? undefined : otp,
-    };
-  } catch (error: any) {
-    console.error('Lỗi đăng ký:', error);
-    return { success: false, error: 'Không thể đăng ký tài khoản' };
-  }
-}
-
-export async function verifyOtpAction(emailInput: string, otpInput: string) {
-  try {
-    const email = emailInput.trim().toLowerCase();
-    const otp = otpInput.trim();
-
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
-
-    if (!user.verifyOtp || user.verifyOtp !== otp) {
-      return { success: false, error: 'Mã OTP không chính xác, vui lòng kiểm tra lại' };
-    }
-
-    if (user.verifyOtpExp && Date.now() > new Date(user.verifyOtpExp).getTime()) {
-      return { success: false, error: 'Mã OTP đã hết hạn (quá 10 phút). Hãy bấm Gửi lại mã!' };
-    }
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
         emailVerified: true,
-        verifyOtp: null,
-        verifyOtpExp: null,
       },
     });
 
     await createSession(user.id);
     revalidatePath('/');
-    return { success: true };
-  } catch (error) {
-    console.error('Lỗi xác nhận OTP:', error);
-    return { success: false, error: 'Không thể xác nhận OTP lúc này' };
-  }
-}
-
-export async function resendOtpAction(emailInput: string) {
-  try {
-    const email = emailInput.trim().toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
-
-    const otp = generateOtp();
-    const verifyOtpExp = new Date(Date.now() + 10 * 60 * 1000);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { verifyOtp: otp, verifyOtpExp },
-    });
-
-    const mailRes = await sendOtpEmail(user.email, user.fullName, otp);
     return {
       success: true,
-      emailSent: mailRes.sent,
-      devOtp: mailRes.sent ? undefined : otp,
+      user: { id: user.id, email: user.email, fullName: user.fullName },
     };
-  } catch {
-    return { success: false, error: 'Không thể gửi lại mã OTP' };
+  } catch (error: any) {
+    console.error('Lỗi đăng ký:', error);
+    return { success: false, error: 'Không thể đăng ký tài khoản' };
   }
 }
 

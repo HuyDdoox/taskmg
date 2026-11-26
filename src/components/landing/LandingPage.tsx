@@ -94,7 +94,7 @@ export function LandingPage() {
               Phân quyền RBAC
             </a>
             <a href="#notifications" className="hover:text-white transition-colors">
-              Thông báo & Gmail
+              Thông báo In-App
             </a>
           </nav>
 
@@ -144,7 +144,7 @@ export function LandingPage() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-[#9FADBC] leading-relaxed">
-            Tạo nhiều dự án độc lập, mời thành viên qua Gmail tự đặt mật khẩu, phân quyền chặt chẽ
+            Tạo nhiều dự án độc lập, mời thành viên bằng đường dẫn tự đặt mật khẩu, phân quyền chặt chẽ
             4 vai trò và chuyển đổi tức thì giữa <strong>List, Kanban Board, Summary & Timeline</strong>.
           </p>
 
@@ -413,30 +413,30 @@ export function LandingPage() {
           >
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400">
-                <Bell className="w-4 h-4" /> THÔNG BÁO & XÁC NHẬN GMAIL
+                <Bell className="w-4 h-4" /> GỌN NHẸ & THÔNG BÁO TRỰC TIẾP
               </div>
               <h3 className="text-xl font-bold text-white">
-                Không bỏ lỡ bất kỳ thay đổi nào của dự án
+                Bắt đầu tức thì, theo dõi mọi thay đổi ngay trên Header
               </h3>
               <ul className="space-y-3 text-xs text-[#B6C2CF]">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-white">Xác nhận Gmail bằng mã OTP 6 số</strong> khi đăng
-                    ký tài khoản mới (hạn 10 phút).
+                    <strong className="text-white">Đăng ký nhanh không rườm rà:</strong> Tạo tài
+                    khoản và vào thẳng không gian Spaces chỉ trong 5 giây.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <MailCheck className="w-4 h-4 text-[#579DFF] shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-white">Mời thành viên tự đặt mật khẩu:</strong> Gửi link
-                    mời bảo mật 24h tới Gmail để đồng đội tự tạo mật khẩu và vào thẳng dự án.
+                    <strong className="text-white">Mời thành viên bằng Link bảo mật:</strong> Copy
+                    đường dẫn mời 24h gửi trực tiếp để đồng đội tự đặt mật khẩu riêng.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Bell className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>
-                    <strong className="text-white">Chuông thông báo 🔔 trên Header + Email:</strong>{' '}
+                    <strong className="text-white">Chuông thông báo 🔔 ngay trên Header:</strong>{' '}
                     Tự động báo khi có Task mới, chuyển In Review/Done hoặc thay đổi Deadline.
                   </span>
                 </li>
