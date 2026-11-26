@@ -1,15 +1,6 @@
 'use client';
 
 import React from 'react';
-import {
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  ListTodo,
-  Users,
-  TrendingUp,
-} from 'lucide-react';
-
 interface SummaryViewProps {
   project: any;
   tasks: any[];
@@ -71,7 +62,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           <div className={`p-4 rounded-xl border ${cardClass}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium opacity-75">Tổng số công việc</span>
-              <ListTodo className="w-4 h-4 text-[#579DFF]" />
+              <i className="fa-solid fa-list-check text-[#579DFF]" />
             </div>
             <div className={`text-2xl font-bold mt-2 font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {totalTasks}
@@ -82,7 +73,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           <div className={`p-4 rounded-xl border ${cardClass}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium opacity-75">Hoàn thành (Done)</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <i className="fa-solid fa-circle-check text-emerald-400" />
             </div>
             <div className="text-2xl font-bold mt-2 font-mono text-emerald-400">
               {doneCount} <span className="text-sm font-normal">({completionPct}%)</span>
@@ -93,7 +84,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           <div className={`p-4 rounded-xl border ${cardClass}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium opacity-75">Đang thực hiện</span>
-              <Clock className="w-4 h-4 text-sky-400" />
+              <i className="fa-regular fa-clock text-sky-400" />
             </div>
             <div className="text-2xl font-bold mt-2 font-mono text-sky-400">
               {inProgressCount}
@@ -104,7 +95,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           <div className={`p-4 rounded-xl border ${cardClass}`}>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium opacity-75">Ưu tiên / Rủi ro cao</span>
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <i className="fa-solid fa-triangle-exclamation text-rose-400" />
             </div>
             <div className="text-2xl font-bold mt-2 font-mono text-rose-400">
               {highRiskCount}
@@ -118,7 +109,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           {/* Status Overview */}
           <div className={`p-5 rounded-xl border space-y-4 ${cardClass}`}>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#579DFF]" />
+              <i className="fa-solid fa-chart-line text-[#579DFF]" />
               <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Phân bổ theo Trạng thái (Status Overview)
               </h3>
@@ -160,7 +151,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
           {/* Priority Breakdown */}
           <div className={`p-5 rounded-xl border space-y-4 ${cardClass}`}>
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <i className="fa-solid fa-triangle-exclamation text-amber-400" />
               <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Phân bổ theo Độ ưu tiên (Priority Breakdown)
               </h3>
@@ -197,7 +188,7 @@ export function SummaryView({ project, tasks, isDark }: SummaryViewProps) {
         {/* Team Workload */}
         <div className={`p-5 rounded-xl border space-y-4 ${cardClass}`}>
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-emerald-400" />
+            <i className="fa-solid fa-users text-emerald-400" />
             <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Khối lượng công việc Thành viên (Team Workload)
             </h3>

@@ -9,13 +9,6 @@ import {
   quickLoginDemoAction,
 } from '@/app/actions/auth-actions';
 import { getRoleBadgeStyle } from '@/lib/rbac';
-import {
-  FolderKanban,
-  LogIn,
-  UserPlus,
-  ShieldCheck,
-  ArrowRight,
-} from 'lucide-react';
 
 interface LoginFormProps {
   demoAccounts: any[];
@@ -71,7 +64,7 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
         <div className="text-center space-y-2">
           <Link href="/" className="inline-block group">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0C66E4] to-sky-400 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-900/30 group-hover:scale-105 transition-transform">
-              <FolderKanban className="w-6 h-6" />
+              <i className="fa-solid fa-layer-group text-xl" />
             </div>
             <h1 className="text-xl font-bold text-white mt-2 group-hover:text-[#579DFF] transition-colors">
               TaskMG Workspace
@@ -97,7 +90,7 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
                   : 'text-[#8C9BAB] hover:text-white'
               }`}
             >
-              <LogIn className="w-3.5 h-3.5" /> Đăng nhập
+              <i className="fa-solid fa-right-to-bracket text-xs" /> Đăng nhập
             </button>
             <button
               type="button"
@@ -111,7 +104,7 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
                   : 'text-[#8C9BAB] hover:text-white'
               }`}
             >
-              <UserPlus className="w-3.5 h-3.5" /> Đăng ký
+              <i className="fa-solid fa-user-plus text-xs" /> Đăng ký
             </button>
           </div>
 
@@ -183,7 +176,7 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
         {demoAccounts.length > 0 && (
           <div className="bg-[#22272B] border border-[#2C333A] rounded-2xl p-4 space-y-3">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
-              <ShieldCheck className="w-4 h-4 text-[#579DFF]" />
+              <i className="fa-solid fa-shield-halved text-sm text-[#579DFF]" />
               Đăng nhập nhanh tài khoản Demo (Test 4 Role)
             </div>
             <div className="space-y-2">
@@ -212,7 +205,7 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
                       >
                         {role}
                       </span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#579DFF]" />
+                      <i className="fa-solid fa-arrow-right text-xs text-[#579DFF]" />
                     </div>
                   </button>
                 );

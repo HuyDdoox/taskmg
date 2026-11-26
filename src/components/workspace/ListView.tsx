@@ -8,24 +8,6 @@ import {
   isDoneColumnTitle,
 } from '@/lib/rbac';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import {
-  Search,
-  Filter,
-  Layers,
-  Plus,
-  CheckSquare,
-  Bookmark,
-  Bug,
-  ArrowUp,
-  ArrowDown,
-  ArrowUpDown,
-  Minus,
-  Flame,
-  ChevronDown,
-  ChevronRight,
-  Calendar,
-} from 'lucide-react';
-
 interface ListViewProps {
   project: any;
   tasks: any[];
@@ -285,11 +267,11 @@ export function ListView({
   const renderIssueIcon = (type: string) => {
     switch (type) {
       case 'BUG':
-        return <Bug className="w-3.5 h-3.5 text-red-400 shrink-0" />;
+        return <i className="fa-solid fa-bug text-red-400 shrink-0" />;
       case 'STORY':
-        return <Bookmark className="w-3.5 h-3.5 text-emerald-400 shrink-0" />;
+        return <i className="fa-solid fa-bookmark text-emerald-400 shrink-0" />;
       default:
-        return <CheckSquare className="w-3.5 h-3.5 text-[#579DFF] shrink-0" />;
+        return <i className="fa-solid fa-square-check text-[#579DFF] shrink-0" />;
     }
   };
 
@@ -298,26 +280,26 @@ export function ListView({
       case 'BLOCKER':
         return (
           <span className="inline-flex items-center gap-1 text-red-400 font-medium">
-            <Flame className="w-3.5 h-3.5" /> Highest
+            <i className="fa-solid fa-fire" /> Highest
           </span>
         );
       case 'HIGH':
         return (
           <span className="inline-flex items-center gap-1 text-orange-400 font-medium">
-            <ArrowUp className="w-3.5 h-3.5" /> High
+            <i className="fa-solid fa-arrow-up" /> High
           </span>
         );
       case 'LOW':
       case 'LOWEST':
         return (
           <span className="inline-flex items-center gap-1 text-sky-400 font-medium">
-            <ArrowDown className="w-3.5 h-3.5" /> Low
+            <i className="fa-solid fa-arrow-down" /> Low
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1 text-amber-400 font-medium">
-            <Minus className="w-3.5 h-3.5" /> Medium
+            <i className="fa-solid fa-minus" /> Medium
           </span>
         );
     }
@@ -339,11 +321,7 @@ export function ListView({
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Search input */}
           <div className="relative w-56">
-            <Search
-              className={`w-3.5 h-3.5 absolute left-2.5 top-2.5 ${
-                isDark ? 'text-[#8C9BAB]' : 'text-gray-400'
-              }`}
-            />
+            <i className={`fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 ${ isDark ? 'text-[#8C9BAB]' : 'text-gray-400' }`} />
             <input
               type="text"
               placeholder="Search work..."
@@ -395,7 +373,7 @@ export function ListView({
                 : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <Filter className="w-3.5 h-3.5" />
+            <i className="fa-solid fa-filter" />
             Filter
             {activeFilterCount > 0 && (
               <span className="px-1.5 py-0.2 rounded bg-[#579DFF] text-slate-950 text-[10px] font-bold">
@@ -406,7 +384,7 @@ export function ListView({
 
           {/* Group By Dropdown */}
           <div className="inline-flex items-center gap-1.5">
-            <Layers className={`w-3.5 h-3.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`} />
+            <i className={`fa-solid fa-layer-group ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`} />
             <CustomSelect
               value={groupBy}
               isDark={isDark}
@@ -521,12 +499,12 @@ export function ListView({
                       <span className={isActive ? 'text-[#579DFF]' : ''}>{col.label}</span>
                       {isActive ? (
                         sortDir === 'asc' ? (
-                          <ArrowUp className="w-3.5 h-3.5 text-[#579DFF]" />
+                          <i className="fa-solid fa-arrow-up text-[#579DFF]" />
                         ) : (
-                          <ArrowDown className="w-3.5 h-3.5 text-[#579DFF]" />
+                          <i className="fa-solid fa-arrow-down text-[#579DFF]" />
                         )
                       ) : (
-                        <ArrowUpDown className="w-3 h-3 opacity-35" />
+                        <i className="fa-solid fa-sort opacity-35" />
                       )}
                     </div>
                   </th>
@@ -555,9 +533,9 @@ export function ListView({
                       <td colSpan={7} className="py-2 px-6">
                         <div className="flex items-center gap-2">
                           {isCollapsed ? (
-                            <ChevronRight className="w-4 h-4" />
+                            <i className="fa-solid fa-chevron-right" />
                           ) : (
-                            <ChevronDown className="w-4 h-4" />
+                            <i className="fa-solid fa-chevron-down" />
                           )}
                           <span>{group.label}</span>
                           <span
@@ -617,7 +595,7 @@ export function ListView({
                           <td className="py-2.5 px-3 whitespace-nowrap">
                             {task.dueDate ? (
                               <span className="inline-flex items-center gap-1 text-[11px]">
-                                <Calendar className="w-3 h-3 opacity-60" />
+                                <i className="fa-regular fa-calendar opacity-60" />
                                 {new Date(task.dueDate).toLocaleDateString('vi-VN')}
                               </span>
                             ) : (
@@ -706,22 +684,22 @@ export function ListView({
                                 {
                                   value: 'BLOCKER',
                                   label: 'Highest',
-                                  icon: <Flame className="w-3.5 h-3.5 text-red-400" />,
+                                  icon: <i className="fa-solid fa-fire text-red-400" />,
                                 },
                                 {
                                   value: 'HIGH',
                                   label: 'High',
-                                  icon: <ArrowUp className="w-3.5 h-3.5 text-orange-400" />,
+                                  icon: <i className="fa-solid fa-arrow-up text-orange-400" />,
                                 },
                                 {
                                   value: 'MEDIUM',
                                   label: 'Medium',
-                                  icon: <Minus className="w-3.5 h-3.5 text-amber-400" />,
+                                  icon: <i className="fa-solid fa-minus text-amber-400" />,
                                 },
                                 {
                                   value: 'LOW',
                                   label: 'Low',
-                                  icon: <ArrowDown className="w-3.5 h-3.5 text-sky-400" />,
+                                  icon: <i className="fa-solid fa-arrow-down text-sky-400" />,
                                 },
                               ]}
                             />
@@ -823,7 +801,7 @@ export function ListView({
                   : 'text-gray-700 hover:bg-gray-200'
               }`}
             >
-              <Plus className="w-4 h-4" /> Create
+              <i className="fa-solid fa-plus" /> Create
             </button>
             <span className={`text-[11px] font-mono ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
               {filteredTasks.length} of {tasks.length}

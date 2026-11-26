@@ -7,7 +7,6 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from '@/app/actions/notification-actions';
-import { Bell, CheckCheck, Sparkles, Clock } from 'lucide-react';
 
 interface NotificationBellProps {
   isDark?: boolean;
@@ -86,7 +85,7 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
         }`}
         title="Thông báo dự án"
       >
-        <Bell className="w-4 h-4" />
+        <i className="fa-solid fa-bell text-sm" />
         {unreadCount > 0 && (
           <span className="absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -109,7 +108,7 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
             }`}
           >
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#579DFF]" />
+              <i className="fa-solid fa-bell text-sm text-[#579DFF]" />
               <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Thông báo ({unreadCount} chưa đọc)
               </span>
@@ -120,7 +119,7 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
                 onClick={handleMarkAll}
                 className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#579DFF] hover:underline cursor-pointer"
               >
-                <CheckCheck className="w-3.5 h-3.5" /> Đọc tất cả
+                <i className="fa-solid fa-check-double text-xs" /> Đọc tất cả
               </button>
             )}
           </div>
@@ -163,7 +162,7 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
           <div className="max-h-80 overflow-y-auto divide-y divide-[#2C333A]/50">
             {visibleItems.length === 0 ? (
               <div className="py-10 px-4 text-center space-y-1.5 opacity-65">
-                <Sparkles className="w-5 h-5 mx-auto text-[#579DFF]" />
+                <i className="fa-solid fa-wand-magic-sparkles text-base text-[#579DFF]" />
                 <div className="text-xs font-medium">Chưa có thông báo mới nào</div>
               </div>
             ) : (
@@ -203,7 +202,7 @@ export function NotificationBell({ isDark = true }: NotificationBellProps) {
                       {item.message}
                     </p>
                     <div className="text-[10px] opacity-60 flex items-center gap-1 pt-0.5">
-                      <Clock className="w-2.5 h-2.5" />
+                      <i className="fa-regular fa-clock text-[10px]" />
                       {new Date(item.createdAt).toLocaleString('vi-VN')}
                     </div>
                   </div>

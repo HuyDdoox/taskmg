@@ -7,14 +7,6 @@ import {
   canUserModifyTaskStatus,
   isDoneColumnTitle,
 } from '@/lib/rbac';
-import {
-  Search,
-  Plus,
-  Flag,
-  CheckSquare,
-  Clock,
-} from 'lucide-react';
-
 interface KanbanBoardProps {
   project: any;
   currentUser?: any;
@@ -127,13 +119,13 @@ export function KanbanBoard({
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
       case 'BLOCKER':
-        return <Flag className="w-3.5 h-3.5 text-red-500" />;
+        return <i className="fa-solid fa-flag text-red-500" />;
       case 'HIGH':
-        return <Flag className="w-3.5 h-3.5 text-orange-400" />;
+        return <i className="fa-solid fa-flag text-orange-400" />;
       case 'MEDIUM':
-        return <Flag className="w-3.5 h-3.5 text-amber-400" />;
+        return <i className="fa-solid fa-flag text-amber-400" />;
       default:
-        return <Flag className="w-3.5 h-3.5 text-sky-400" />;
+        return <i className="fa-solid fa-flag text-sky-400" />;
     }
   };
 
@@ -165,11 +157,7 @@ export function KanbanBoard({
         }`}
       >
         <div className="relative w-56">
-          <Search
-            className={`w-3.5 h-3.5 absolute left-2.5 top-2.5 ${
-              isDark ? 'text-[#8C9BAB]' : 'text-gray-400'
-            }`}
-          />
+          <i className={`fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 ${ isDark ? 'text-[#8C9BAB]' : 'text-gray-400' }`} />
           <input
             type="text"
             placeholder="Tìm task trên board..."
@@ -345,7 +333,7 @@ export function KanbanBoard({
 
                         {totalChecklists > 0 && (
                           <div className="flex items-center gap-2 text-[11px] opacity-75">
-                            <CheckSquare className="w-3.5 h-3.5" />
+                            <i className="fa-solid fa-square-check" />
                             <span>
                               {completedChecklists}/{totalChecklists}
                             </span>
@@ -374,7 +362,7 @@ export function KanbanBoard({
                           <div className="flex items-center gap-1">
                             {task.dueDate ? (
                               <>
-                                <Clock className="w-3 h-3" />
+                                <i className="fa-regular fa-clock" />
                                 <span>
                                   {new Date(task.dueDate).toLocaleDateString('vi-VN')}
                                 </span>
@@ -419,7 +407,7 @@ export function KanbanBoard({
                           : 'text-gray-600 hover:bg-gray-300/60'
                       }`}
                     >
-                      <Plus className="w-3.5 h-3.5" /> Thêm công việc
+                      <i className="fa-solid fa-plus" /> Thêm công việc
                     </button>
                   </div>
                 )}

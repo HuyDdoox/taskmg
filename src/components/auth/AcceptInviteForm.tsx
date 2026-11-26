@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { completeInviteSetupAction } from '@/app/actions/auth-actions';
+import Link from 'next/link';
 import { getRoleBadgeStyle } from '@/lib/rbac';
-import { FolderKanban, KeyRound, CheckCircle2 } from 'lucide-react';
 
 interface AcceptInviteFormProps {
   token: string;
@@ -53,10 +53,14 @@ export function AcceptInviteForm({ token, invite }: AcceptInviteFormProps) {
     <div className="min-h-screen bg-[#1D2125] text-[#B6C2CF] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0C66E4] to-emerald-400 text-white flex items-center justify-center mx-auto shadow-lg">
-            <FolderKanban className="w-6 h-6" />
-          </div>
-          <h1 className="text-xl font-bold text-white">Chào mừng tới TaskMG!</h1>
+          <Link href="/" className="inline-block group">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0C66E4] to-emerald-400 text-white flex items-center justify-center mx-auto shadow-lg group-hover:scale-105 transition-transform">
+              <i className="fa-solid fa-layer-group text-xl" />
+            </div>
+            <h1 className="text-xl font-bold text-white mt-2 group-hover:text-[#579DFF] transition-colors">
+              Chào mừng tới TaskMG!
+            </h1>
+          </Link>
           <p className="text-xs text-[#8C9BAB]">
             Đặt mật khẩu riêng của bạn để kích hoạt tài khoản và tham gia dự án
           </p>
@@ -112,8 +116,8 @@ export function AcceptInviteForm({ token, invite }: AcceptInviteFormProps) {
             </div>
 
             <div>
-              <label className="block font-semibold text-[#B6C2CF] mb-1 flex items-center gap-1">
-                <KeyRound className="w-3.5 h-3.5 text-[#579DFF]" /> Mật khẩu mới (tối thiểu 6 ký tự)
+              <label className="block font-semibold text-[#B6C2CF] mb-1 flex items-center gap-1.5">
+                <i className="fa-solid fa-key text-xs text-[#579DFF]" /> Mật khẩu mới (tối thiểu 6 ký tự)
               </label>
               <input
                 type="password"
@@ -142,7 +146,7 @@ export function AcceptInviteForm({ token, invite }: AcceptInviteFormProps) {
               disabled={loading}
               className="w-full py-2.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <i className="fa-solid fa-circle-check text-sm" />
               {loading ? 'Đang kích hoạt...' : 'Hoàn tất & Vào Dự Án ngay'}
             </button>
           </form>

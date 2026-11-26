@@ -14,16 +14,6 @@ import {
   isDoneColumnTitle,
 } from '@/lib/rbac';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import {
-  X,
-  Calendar,
-  Clock,
-  CheckSquare,
-  Tag,
-  Plus,
-  Trash2,
-} from 'lucide-react';
-
 interface TaskDrawerProps {
   task: any | null;
   project?: any;
@@ -179,7 +169,7 @@ export function TaskDrawer({
                 }`}
                 title="Xóa công việc (ADMIN / PM)"
               >
-                <Trash2 className="w-4 h-4" />
+                <i className="fa-solid fa-trash-can" />
               </button>
             )}
             <button
@@ -190,7 +180,7 @@ export function TaskDrawer({
                   : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'
               }`}
             >
-              <X className="w-5 h-5" />
+              <i className="fa-solid fa-xmark" />
             </button>
           </div>
         </div>
@@ -207,7 +197,7 @@ export function TaskDrawer({
               {/* Description */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5" /> Mô Tả Công Việc
+                  <i className="fa-solid fa-tag" /> Mô Tả Công Việc
                 </label>
                 <div
                   className={`p-3.5 rounded-lg border text-sm leading-relaxed whitespace-pre-line ${
@@ -224,7 +214,7 @@ export function TaskDrawer({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center gap-1.5">
-                    <CheckSquare className="w-3.5 h-3.5" /> Action Checklist
+                    <i className="fa-solid fa-square-check" /> Action Checklist
                   </label>
                   <span className="text-xs font-mono font-semibold">
                     {completedCount}/{checklists.length} ({progressPercent}%)
@@ -288,7 +278,7 @@ export function TaskDrawer({
                       disabled={addingChecklist}
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
                     >
-                      <Plus className="w-3.5 h-3.5" /> Thêm
+                      <i className="fa-solid fa-plus" /> Thêm
                     </button>
                   </form>
                 )}
@@ -297,7 +287,7 @@ export function TaskDrawer({
               {/* Activity Logs */}
               <div className="space-y-2.5 pt-2">
                 <label className="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" /> Lịch Sử Hoạt Động
+                  <i className="fa-regular fa-clock" /> Lịch Sử Hoạt Động
                 </label>
                 <div
                   className={`space-y-2 border-l-2 pl-3 ml-1 ${
@@ -418,7 +408,7 @@ export function TaskDrawer({
               {/* Due Date */}
               <div className="space-y-1">
                 <span className="opacity-70 font-medium flex items-center gap-1">
-                  <Calendar className="w-3 h-3" /> Hạn chót (Due date):
+                  <i className="fa-regular fa-calendar" /> Hạn chót (Due date):
                 </span>
                 <input
                   type="date"

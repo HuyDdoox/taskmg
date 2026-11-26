@@ -14,20 +14,6 @@ import { MembersView } from './MembersView';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { TaskDrawer } from '@/components/kanban/TaskDrawer';
 import { CreateTaskModal } from '@/components/kanban/CreateTaskModal';
-import {
-  Globe,
-  List,
-  LayoutGrid,
-  CalendarRange,
-  Users,
-  Plus,
-  Sun,
-  Moon,
-  ChevronRight,
-  LogOut,
-  Shield,
-} from 'lucide-react';
-
 export type WorkspaceTab = 'summary' | 'list' | 'board' | 'timeline' | 'members';
 
 interface ProjectWorkspaceProps {
@@ -172,14 +158,14 @@ export function ProjectWorkspace({
   };
 
   const tabs: { id: WorkspaceTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'summary', label: 'Summary', icon: <Globe className="w-3.5 h-3.5" /> },
-    { id: 'list', label: 'List', icon: <List className="w-3.5 h-3.5" /> },
-    { id: 'board', label: 'Board', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
-    { id: 'timeline', label: 'Timeline', icon: <CalendarRange className="w-3.5 h-3.5" /> },
+    { id: 'summary', label: 'Summary', icon: <i className="fa-solid fa-globe" /> },
+    { id: 'list', label: 'List', icon: <i className="fa-solid fa-list" /> },
+    { id: 'board', label: 'Board', icon: <i className="fa-solid fa-table-columns" /> },
+    { id: 'timeline', label: 'Timeline', icon: <i className="fa-solid fa-calendar-days" /> },
     {
       id: 'members',
       label: `Members (${project.members?.length || 0})`,
-      icon: <Users className="w-3.5 h-3.5" />,
+      icon: <i className="fa-solid fa-users" />,
     },
   ];
 
@@ -204,7 +190,7 @@ export function ProjectWorkspace({
               >
                 Spaces
               </Link>
-              <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+              <i className="fa-solid fa-chevron-right opacity-50" />
               <CustomSelect
                 value={project.id}
                 isDark={isDark}
@@ -235,7 +221,7 @@ export function ProjectWorkspace({
                 )}`}
                 title="Vai trò của bạn trong dự án này"
               >
-                <Shield className="w-3 h-3" /> {permissions.role}
+                <i className="fa-solid fa-shield-halved" /> {permissions.role}
               </span>
             </div>
           </div>
@@ -264,7 +250,7 @@ export function ProjectWorkspace({
                 }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
               >
-                <Plus className="w-4 h-4" /> Tạo Task
+                <i className="fa-solid fa-plus" /> Tạo Task
               </button>
             )}
 
@@ -281,7 +267,7 @@ export function ProjectWorkspace({
               }`}
               title={isDark ? 'Giao diện Sáng' : 'Giao diện Tối'}
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <i className="fa-solid fa-sun" /> : <i className="fa-solid fa-moon" />}
             </button>
 
             {/* Logout */}
@@ -294,7 +280,7 @@ export function ProjectWorkspace({
               }`}
               title="Đăng xuất / Đổi tài khoản"
             >
-              <LogOut className="w-4 h-4" />
+              <i className="fa-solid fa-right-from-bracket" />
             </button>
           </div>
         </div>

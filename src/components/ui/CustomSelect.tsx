@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Lock } from 'lucide-react';
 
 export interface CustomSelectOption {
   value: string;
@@ -100,8 +99,8 @@ export function CustomSelect({
           )}
         </span>
         {!disabled && (
-          <ChevronDown
-            className={`w-3.5 h-3.5 shrink-0 opacity-70 transition-transform ${
+          <i
+            className={`fa-solid fa-chevron-down text-[10px] shrink-0 opacity-70 transition-transform ${
               open ? 'rotate-180' : ''
             }`}
           />
@@ -166,9 +165,9 @@ export function CustomSelect({
                 </div>
 
                 {opt.disabled ? (
-                  <Lock className="w-3 h-3 opacity-60 shrink-0" />
+                  <i className="fa-solid fa-lock text-[10px] opacity-60 shrink-0" />
                 ) : isSelected ? (
-                  <Check className="w-3.5 h-3.5 text-[#579DFF] shrink-0" />
+                  <i className="fa-solid fa-check text-xs text-[#579DFF] shrink-0" />
                 ) : null}
               </button>
             );

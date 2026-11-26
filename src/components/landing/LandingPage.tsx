@@ -2,25 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import {
-  FolderKanban,
-  ArrowRight,
-  ExternalLink,
-  List,
-  LayoutGrid,
-  Globe,
-  CalendarRange,
-  Users,
-  ShieldCheck,
-  Bell,
-  MailCheck,
-  CheckSquare,
-  Flame,
-  ArrowUp,
-  CheckCircle2,
-  Sparkles,
-} from 'lucide-react';
-
 interface LandingPageProps {
   currentUser: { id: string; fullName: string; email: string } | null;
 }
@@ -75,7 +56,7 @@ export function LandingPage() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0C66E4] to-[#579DFF] flex items-center justify-center text-white shadow-md shadow-blue-900/40">
-              <FolderKanban className="w-5 h-5" />
+              <i className="fa-solid fa-layer-group" />
             </div>
             <div>
               <span className="font-extrabold text-base tracking-tight text-white">TaskMG</span>
@@ -107,7 +88,7 @@ export function LandingPage() {
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#38414A] bg-[#1D2125] hover:bg-[#282E33] text-[#DEE4EA] text-xs font-semibold transition-colors"
             >
               Đăng nhập
-              <ExternalLink className="w-3 h-3 opacity-70" />
+              <i className="fa-solid fa-arrow-up-right-from-square opacity-70" />
             </a>
             <a
               href="/login?mode=register"
@@ -116,7 +97,7 @@ export function LandingPage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-bold shadow-md shadow-blue-900/30 transition-all"
             >
               Bắt đầu miễn phí
-              <ArrowRight className="w-3.5 h-3.5" />
+              <i className="fa-solid fa-arrow-right" />
             </a>
           </div>
         </div>
@@ -132,7 +113,7 @@ export function LandingPage() {
 
         <div className="max-w-5xl mx-auto text-center space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1D2125] border border-[#2C333A] text-xs font-medium text-[#85B8FF]">
-            <Sparkles className="w-3.5 h-3.5" />
+            <i className="fa-solid fa-wand-magic-sparkles" />
             Nền tảng Quản lý Dự án Đa Không Gian (Spaces) chuẩn Jira Cloud
           </div>
 
@@ -156,7 +137,7 @@ export function LandingPage() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0C66E4] hover:bg-[#0055CC] text-white text-sm font-bold shadow-lg shadow-blue-900/40 transition-all"
             >
               Tạo tài khoản miễn phí
-              <ExternalLink className="w-4 h-4" />
+              <i className="fa-solid fa-arrow-up-right-from-square" />
             </a>
             <a
               href="/login"
@@ -165,7 +146,7 @@ export function LandingPage() {
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1D2125] hover:bg-[#282E33] border border-[#38414A] text-white text-sm font-semibold transition-all"
             >
               Đăng nhập ngay
-              <ArrowRight className="w-4 h-4" />
+              <i className="fa-solid fa-arrow-right" />
             </a>
           </div>
         </div>
@@ -196,7 +177,7 @@ export function LandingPage() {
                       : 'text-[#9FADBC] hover:text-white'
                   }`}
                 >
-                  <List className="w-3.5 h-3.5" /> List View
+                  <i className="fa-solid fa-list" /> List View
                 </button>
                 <button
                   type="button"
@@ -207,7 +188,7 @@ export function LandingPage() {
                       : 'text-[#9FADBC] hover:text-white'
                   }`}
                 >
-                  <LayoutGrid className="w-3.5 h-3.5" /> Board View
+                  <i className="fa-solid fa-table-columns" /> Board View
                 </button>
               </div>
             </div>
@@ -229,7 +210,7 @@ export function LandingPage() {
                       <tr key={t.key} className="hover:bg-[#22272B] transition-colors">
                         <td className="py-3 pl-5 pr-3">
                           <div className="flex items-center gap-2.5">
-                            <CheckSquare className="w-3.5 h-3.5 text-[#579DFF]" />
+                            <i className="fa-solid fa-square-check text-[#579DFF]" />
                             <span className="font-mono font-bold text-[#579DFF]">{t.key}</span>
                             <span className="text-[#DEE4EA] font-medium">{t.title}</span>
                           </div>
@@ -247,11 +228,11 @@ export function LandingPage() {
                         <td className="py-3 px-3">
                           {t.priority === 'Highest' ? (
                             <span className="inline-flex items-center gap-1 text-red-400 font-medium">
-                              <Flame className="w-3.5 h-3.5" /> Highest
+                              <i className="fa-solid fa-fire" /> Highest
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-orange-400 font-medium">
-                              <ArrowUp className="w-3.5 h-3.5" /> High
+                              <i className="fa-solid fa-arrow-up" /> High
                             </span>
                           )}
                         </td>
@@ -317,27 +298,27 @@ export function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
               {
-                icon: <Globe className="w-5 h-5 text-[#579DFF]" />,
+                icon: <i className="fa-solid fa-globe text-[#579DFF]" />,
                 title: 'Summary',
                 desc: 'Biểu đồ tiến độ, phân bổ trạng thái, ưu tiên và khối lượng việc từng thành viên.',
               },
               {
-                icon: <List className="w-5 h-5 text-emerald-400" />,
+                icon: <i className="fa-solid fa-list text-emerald-400" />,
                 title: 'List View',
                 desc: 'Sort 3 trạng thái trên 7 cột, lọc nhanh theo Avatar, Group nhóm và + Create tại chỗ.',
               },
               {
-                icon: <LayoutGrid className="w-5 h-5 text-purple-400" />,
+                icon: <i className="fa-solid fa-table-columns text-purple-400" />,
                 title: 'Kanban Board',
                 desc: 'Kéo thả 4 cột mượt mà chuẩn Jira, mở Drawer chi tiết kèm Action Checklist %.',
               },
               {
-                icon: <CalendarRange className="w-5 h-5 text-amber-400" />,
+                icon: <i className="fa-solid fa-calendar-days text-amber-400" />,
                 title: 'Timeline',
                 desc: 'Chia Giai đoạn (Milestones / Sprints) và bám sát hạn chót từng hạng mục.',
               },
               {
-                icon: <Users className="w-5 h-5 text-rose-400" />,
+                icon: <i className="fa-solid fa-users text-rose-400" />,
                 title: 'Members',
                 desc: 'Mời thành viên qua Gmail tự đặt mật khẩu riêng, phân quyền và quản lý vai trò.',
               },
@@ -363,7 +344,7 @@ export function LandingPage() {
           {/* RBAC Block */}
           <div className="p-6 rounded-2xl border border-[#2C333A] bg-[#1D2125] space-y-4">
             <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-400">
-              <ShieldCheck className="w-4 h-4" /> PHÂN QUYỀN RBAC CHẶT CHẼ
+              <i className="fa-solid fa-shield-halved" /> PHÂN QUYỀN RBAC CHẶT CHẼ
             </div>
             <h3 className="text-xl font-bold text-white">
               4 Vai trò rõ ràng từ Giao diện tới Backend
@@ -413,28 +394,28 @@ export function LandingPage() {
           >
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400">
-                <Bell className="w-4 h-4" /> GỌN NHẸ & THÔNG BÁO TRỰC TIẾP
+                <i className="fa-solid fa-bell" /> GỌN NHẸ & THÔNG BÁO TRỰC TIẾP
               </div>
               <h3 className="text-xl font-bold text-white">
                 Bắt đầu tức thì, theo dõi mọi thay đổi ngay trên Header
               </h3>
               <ul className="space-y-3 text-xs text-[#B6C2CF]">
                 <li className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <i className="fa-solid fa-circle-check text-emerald-400 shrink-0 mt-0.5" />
                   <span>
                     <strong className="text-white">Đăng ký nhanh không rườm rà:</strong> Tạo tài
                     khoản và vào thẳng không gian Spaces chỉ trong 5 giây.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <MailCheck className="w-4 h-4 text-[#579DFF] shrink-0 mt-0.5" />
+                  <i className="fa-solid fa-envelope-circle-check text-[#579DFF] shrink-0 mt-0.5" />
                   <span>
                     <strong className="text-white">Mời thành viên bằng Link bảo mật:</strong> Copy
                     đường dẫn mời 24h gửi trực tiếp để đồng đội tự đặt mật khẩu riêng.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
-                  <Bell className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <i className="fa-solid fa-bell text-amber-400 shrink-0 mt-0.5" />
                   <span>
                     <strong className="text-white">Chuông thông báo 🔔 ngay trên Header:</strong>{' '}
                     Tự động báo khi có Task mới, chuyển In Review/Done hoặc thay đổi Deadline.
@@ -452,7 +433,7 @@ export function LandingPage() {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-bold transition-colors"
               >
                 Mở trang Đăng nhập
-                <ExternalLink className="w-3.5 h-3.5" />
+                <i className="fa-solid fa-arrow-up-right-from-square" />
               </a>
             </div>
           </div>
@@ -463,7 +444,7 @@ export function LandingPage() {
       <footer className="py-8 px-6 border-t border-[#22272B] text-center text-xs text-[#6B778C]">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 font-semibold text-[#9FADBC]">
-            <FolderKanban className="w-4 h-4 text-[#579DFF]" />
+            <i className="fa-solid fa-layer-group text-[#579DFF]" />
             TaskMG Workspace — Multi-Project Jira Standard
           </div>
           <div>Next.js • Supabase PostgreSQL • Vercel Cloud</div>

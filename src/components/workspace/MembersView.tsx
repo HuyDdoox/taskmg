@@ -8,8 +8,6 @@ import {
 } from '@/app/actions/member-actions';
 import { ProjectPermissions, getRoleBadgeStyle } from '@/lib/rbac';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { UserPlus, Trash2, Shield, X, Mail, Users, Copy, Check } from 'lucide-react';
-
 interface MembersViewProps {
   project: any;
   allUsers: any[];
@@ -112,7 +110,7 @@ export function MembersView({
         <div className="flex items-center justify-between">
           <div>
             <h2 className={`text-base font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              <Users className="w-4 h-4 text-[#579DFF]" />
+              <i className="fa-solid fa-users text-[#579DFF]" />
               Thành viên Dự án ({members.length})
             </h2>
             <p className={`text-xs mt-0.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
@@ -128,7 +126,7 @@ export function MembersView({
               }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-sm cursor-pointer"
             >
-              <UserPlus className="w-4 h-4" /> Thêm Thành Viên
+              <i className="fa-solid fa-user-plus" /> Thêm Thành Viên
             </button>
           )}
         </div>
@@ -160,7 +158,7 @@ export function MembersView({
                 }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white font-semibold cursor-pointer"
               >
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <i className="fa-solid fa-check" /> : <i className="fa-regular fa-copy" />}
                 {copied ? 'Đã copy!' : 'Copy Link Mời'}
               </button>
               <button
@@ -168,7 +166,7 @@ export function MembersView({
                 onClick={() => setInviteBanner(null)}
                 className="p-1.5 rounded hover:bg-black/10 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
           </div>
@@ -207,7 +205,7 @@ export function MembersView({
                       )}
                     </div>
                     <div className={`text-xs flex items-center gap-1.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
-                      <Mail className="w-3 h-3" /> {m.user?.email}
+                      <i className="fa-solid fa-envelope" /> {m.user?.email}
                     </div>
                   </div>
                 </div>
@@ -222,7 +220,7 @@ export function MembersView({
                   </span>
 
                   <div className="flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-[#579DFF]" />
+                    <i className="fa-solid fa-shield-halved text-[#579DFF]" />
                     <CustomSelect
                       value={m.role}
                       disabled={isOwner || !permissions.canManageMemberRoles}
@@ -253,7 +251,7 @@ export function MembersView({
                       }`}
                       title="Gỡ khỏi dự án (Chỉ ADMIN)"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <i className="fa-solid fa-trash-can" />
                     </button>
                   )}
                 </div>
@@ -277,13 +275,13 @@ export function MembersView({
               }`}
             >
               <div className="flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-[#579DFF]" />
+                <i className="fa-solid fa-user-plus text-[#579DFF]" />
                 <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Thêm Thành Viên Vào Dự Án
                 </h3>
               </div>
               <button onClick={() => setIsAddOpen(false)} className="p-1 opacity-70 hover:opacity-100">
-                <X className="w-4 h-4" />
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 

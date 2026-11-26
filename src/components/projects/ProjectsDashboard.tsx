@@ -7,21 +7,6 @@ import { createProject, deleteProject } from '@/app/actions/project-actions';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getRoleBadgeStyle } from '@/lib/rbac';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
-import {
-  FolderKanban,
-  Plus,
-  Search,
-  Users,
-  ArrowRight,
-  Trash2,
-  X,
-  Sun,
-  Moon,
-  Layers,
-  Sparkles,
-  LogOut,
-} from 'lucide-react';
-
 interface ProjectsDashboardProps {
   initialProjects: any[];
   currentUser: { id: string; fullName: string; email: string };
@@ -160,7 +145,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
       >
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-8 h-8 rounded-lg bg-[#0C66E4] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-            <FolderKanban className="w-4 h-4" />
+            <i className="fa-solid fa-layer-group" />
           </div>
           <div>
             <div className={`font-bold text-sm leading-tight group-hover:text-[#579DFF] transition-colors ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -197,14 +182,14 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
             }`}
             title={isDark ? 'Chuyển sang Giao diện Sáng' : 'Chuyển sang Giao diện Tối'}
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {isDark ? <i className="fa-solid fa-sun" /> : <i className="fa-solid fa-moon" />}
           </button>
 
           <button
             onClick={() => setIsCreateOpen(true)}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
           >
-            <Plus className="w-4 h-4" /> Tạo Dự Án Mới
+            <i className="fa-solid fa-plus" /> Tạo Dự Án Mới
           </button>
 
           <button
@@ -216,7 +201,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
             }`}
             title="Đăng xuất"
           >
-            <LogOut className="w-4 h-4" />
+            <i className="fa-solid fa-right-from-bracket" />
           </button>
         </div>
       </header>
@@ -235,9 +220,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search
-              className={`w-4 h-4 absolute left-3 top-2.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-400'}`}
-            />
+            <i className={`fa-solid fa-magnifying-glass absolute left-3 top-2.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-400'}`} />
             <input
               type="text"
               placeholder="Tìm dự án theo tên hoặc mã Key..."
@@ -260,7 +243,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
             }`}
           >
             <div className="w-12 h-12 rounded-xl bg-[#0C66E4]/15 text-[#579DFF] flex items-center justify-center mx-auto">
-              <Sparkles className="w-6 h-6" />
+              <i className="fa-solid fa-wand-magic-sparkles" />
             </div>
             <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Chưa có dự án nào
@@ -272,7 +255,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
               onClick={() => setIsCreateOpen(true)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
             >
-              <Plus className="w-4 h-4" /> Tạo Dự Án Đầu Tiên
+              <i className="fa-solid fa-plus" /> Tạo Dự Án Đầu Tiên
             </button>
           </div>
         ) : (
@@ -339,7 +322,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
                             }`}
                             title="Xóa dự án (Chỉ ADMIN)"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <i className="fa-solid fa-trash-can" />
                           </button>
                         )}
                       </div>
@@ -410,13 +393,13 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
 
                     <div className="flex items-center gap-3 text-[11px]">
                       <span className={`inline-flex items-center gap-1 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
-                        <Layers className="w-3 h-3" /> {project._count?.milestones ?? 0}
+                        <i className="fa-solid fa-layer-group" /> {project._count?.milestones ?? 0}
                       </span>
                       <span className={`inline-flex items-center gap-1 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
-                        <Users className="w-3 h-3" /> {project._count?.members ?? 0}
+                        <i className="fa-solid fa-users" /> {project._count?.members ?? 0}
                       </span>
                       <span className="inline-flex items-center gap-1 text-[#579DFF] font-semibold group-hover:translate-x-0.5 transition-transform">
-                        Mở <ArrowRight className="w-3 h-3" />
+                        Mở <i className="fa-solid fa-arrow-right" />
                       </span>
                     </div>
                   </div>
@@ -441,7 +424,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
               }`}
             >
               <div className="flex items-center gap-2">
-                <FolderKanban className="w-4 h-4 text-[#579DFF]" />
+                <i className="fa-solid fa-layer-group text-[#579DFF]" />
                 <h3 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Tạo Dự Án Mới (New Space)
                 </h3>
@@ -450,7 +433,7 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
                 onClick={() => setIsCreateOpen(false)}
                 className={`p-1 rounded ${isDark ? 'text-[#8C9BAB] hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
               >
-                <X className="w-4 h-4" />
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
 

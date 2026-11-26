@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { createMilestone } from '@/app/actions/project-actions';
 import { ProjectPermissions } from '@/lib/rbac';
-import { Calendar, Plus, Target, ChevronDown, ChevronRight, X } from 'lucide-react';
-
 interface TimelineViewProps {
   project: any;
   tasks: any[];
@@ -79,7 +77,7 @@ export function TimelineView({
               onClick={() => setIsAddOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" /> Thêm Giai Đoạn
+              <i className="fa-solid fa-plus" /> Thêm Giai Đoạn
             </button>
           )}
         </div>
@@ -112,17 +110,17 @@ export function TimelineView({
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {isOpen ? (
-                      <ChevronDown className="w-4 h-4 shrink-0" />
+                      <i className="fa-solid fa-chevron-down shrink-0" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 shrink-0" />
+                      <i className="fa-solid fa-chevron-right shrink-0" />
                     )}
-                    <Target className="w-4 h-4 text-purple-400 shrink-0" />
+                    <i className="fa-solid fa-bullseye text-purple-400 shrink-0" />
                     <div className="min-w-0">
                       <div className={`text-sm font-bold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {m.title}
                       </div>
                       <div className={`text-[11px] flex items-center gap-2 mt-0.5 ${isDark ? 'text-[#8C9BAB]' : 'text-gray-500'}`}>
-                        <Calendar className="w-3 h-3" />
+                        <i className="fa-regular fa-calendar" />
                         <span>
                           {m.startDate ? new Date(m.startDate).toLocaleDateString('vi-VN') : 'Chưa đặt'}
                           {' → '}
@@ -268,7 +266,7 @@ export function TimelineView({
                 Thêm Giai Đoạn (Milestone / Sprint)
               </h3>
               <button onClick={() => setIsAddOpen(false)} className="p-1 opacity-70 hover:opacity-100">
-                <X className="w-4 h-4" />
+                <i className="fa-solid fa-xmark" />
               </button>
             </div>
             <form onSubmit={handleAddMilestone} className="p-5 space-y-4 text-xs">

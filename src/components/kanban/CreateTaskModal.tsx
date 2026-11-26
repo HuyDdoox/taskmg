@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { createQuickTask } from '@/app/actions/task-actions';
 import { ProjectPermissions } from '@/lib/rbac';
-import { X } from 'lucide-react';
-
 interface CreateTaskModalProps {
   projectId: string;
   columns: any[];
@@ -123,7 +121,7 @@ export function CreateTaskModal({
               isDark ? 'text-[#8C9BAB] hover:text-white' : 'text-gray-400 hover:text-gray-700'
             }`}
           >
-            <X className="w-5 h-5" />
+            <i className="fa-solid fa-xmark" />
           </button>
         </div>
 
