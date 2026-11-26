@@ -1,83 +1,67 @@
 # TÀI LIỆU ĐẶC TẢ NGHIỆP VỤ (BUSINESS ANALYSIS - BA & SRS)
 
-> **Dự án:** Website Quản lý Công việc & Dự án (Task Management - Chuẩn Jira thu nhỏ)  
+> **Dự án:** TaskMG Workspace — Hệ thống Quản lý Dự án & Công việc chuẩn Jira  
 > **Chủ nhiệm dự án (PO / PM):** Sếp  
-> **Tài liệu đối chiếu:** `docs/business_logic.md`  
-> **Quy định:** Bắt buộc đối chiếu tài liệu này trước khi lập trình hoặc thay đổi tính năng.
+> **Link vận hành Live:** [https://taskmg-six.vercel.app/](https://taskmg-six.vercel.app/)  
+> **Tài liệu đối chiếu:** `docs/business_logic.md`
 
 ---
 
-## 1. TỔNG QUAN HỆ THỐNG & ĐỐI TƯỢNG NGƯỜI DÙNG
+## 1. TỔNG QUAN HỆ THỐNG & MA TRẬN PHÂN QUYỀN (RBAC)
 
-Hệ thống cung cấp giải pháp quản lý công việc và dự án tinh gọn theo chuẩn Jira, hỗ trợ làm việc cộng tác thời gian thực thông qua bảng Kanban kéo thả, kênh chat trao đổi và hệ thống gửi email thông báo tự động.
+Hệ thống cung cấp giải pháp quản lý đa dự án (Multi-Project Spaces) và công việc chuẩn Jira với 5 góc nhìn (`Summary`, `List`, `Board`, `Timeline`, `Members`), hỗ trợ tạo task hàng loạt (Paste danh sách & Import `.CSV`), kiểm tra tài khoản tồn tại theo Email, đường dẫn mời thành viên `/accept-invite` và chuông thông báo In-App 🔔.
 
-### Phân quyền người dùng (RBAC Matrix):
-| Quyền hạn | Admin (Chủ sở hữu) | Project Manager (PM) | Member (Thành viên) | Viewer (Khách) |
+### Ma trận Phân quyền 4 Vai trò (RBAC Matrix):
+
+| Quyền hạn nghiệp vụ | ADMIN (Chủ dự án) | PM (Quản lý) | MEMBER (Thành viên) | VIEWER (Khách) |
 | :--- | :---: | :---: | :---: | :---: |
 | Tạo / Xóa Dự án | ✅ | ❌ | ❌ | ❌ |
-| Tạo Giai đoạn (Milestone) | ✅ | ✅ | ❌ | ❌ |
-| Tạo / Giao Task cho người khác | ✅ | ✅ | ✅ (Chỉ trong dự án) | ❌ |
-| Đổi trạng thái kéo thả Kanban | ✅ | ✅ | ✅ (Task được gán) | ❌ |
-| Tích chọn Action Checklist | ✅ | ✅ | ✅ | ❌ |
-| Tham gia Chat Kênh dự án | ✅ | ✅ | ✅ | ✅ (Chỉ đọc) |
+| Thêm thành viên & Kiểm tra tài khoản theo Email | ✅ | ✅ | ❌ | ❌ |
+| Đổi Role (`ADMIN/PM/MEMBER/VIEWER`) & Gỡ thành viên | ✅ | ❌ | ❌ | ❌ |
+| Tạo Giai đoạn (Milestones / Sprints) | ✅ | ✅ | ❌ | ❌ |
+| Tạo Task lẻ & Tạo Task hàng loạt (Paste / `.CSV`) | ✅ | ✅ | ✅ (Gán cho mình) | ❌ |
+| Sửa Priority, Risk Level, Due Date, Milestone, Giao việc người khác | ✅ | ✅ | ❌ | ❌ |
+| Đổi trạng thái Task (`To Do` ↔ `In Progress` ↔ `In Review`) | ✅ (Mọi task) | ✅ (Mọi task) | ✅ (Chỉ task của mình) | ❌ |
+| Chốt duyệt Task sang cột `Hoàn thành (Done)` | ✅ | ✅ | ❌ (Bị khóa 🔒) | ❌ |
+| Thêm / Tích chọn / Xóa mục `Action Checklist` | ✅ | ✅ | ✅ (Chỉ task của mình) | ❌ |
 
 ---
 
-## 2. ĐẶC TẢ CHI TIẾT 4 PHÂN HỆ CỐT LÕI
+## 2. ĐẶC TẢ CHI TIẾT 5 PHÂN HỆ CỐT LÕI
 
-### Phân hệ 1: Quản lý Dự Án & Giai Đoạn (Projects & Milestones)
-- **Tạo Dự Án:**
-  - `name`: Tên dự án (Bắt buộc, 3 - 100 ký tự).
-  - `project_key`: Mã tiền tố viết tắt (In hoa, 2 - 5 ký tự, ví dụ `TASK`, `PROJ`). Dùng để tự sinh mã định danh task con (`#TASK-1`, `#TASK-2`...).
-  - `description`: Bối cảnh và mục tiêu dự án.
-- **Phân chia Giai đoạn (Milestones / Sprints):**
-  - Giúp chia nhỏ dự án lớn thành các chặng: `UPCOMING` (Sắp tới) ➔ `IN_PROGRESS` (Đang chạy) ➔ `COMPLETED` (Đã xong).
-  - Mỗi Task có thể gắn vào 1 Milestone. Bảng Kanban hỗ trợ bộ lọc nhanh theo từng Giai đoạn để không bị ngợp thông tin.
+### Phân hệ 1: Xác thực Trực tiếp & Lời mời Thành viên (`/login`, `/accept-invite`)
+- **Đăng ký & Đăng nhập trực tiếp:** Băm mật khẩu chuẩn `scrypt` kèm salt ngẫu nhiên, lưu phiên đăng nhập qua Cookie `HttpOnly` ký số `HMAC-SHA256` chống giả mạo.
+- **Đăng nhập nhanh Demo (Whitelist Security):** Chỉ cho phép 4 tài khoản mẫu `@company.com` (`ADMIN`, `PM`, `MEMBER`, `VIEWER`) hiển thị trên bảng Demo Login để phục vụ trải nghiệm nhanh; tuyệt đối ẩn và bảo vệ tài khoản người dùng thật.
+- **Đường dẫn mời thành viên (`/accept-invite?token=...`):** Khi mời một email chưa tạo tài khoản trên hệ thống, hệ thống sinh token định danh 1 lần (hết hạn sau 24h) để thành viên tự đặt mật khẩu và kích hoạt vào thẳng dự án.
 
-### Phân hệ 2: Quản lý Task Chuẩn Jira (Jira-style Task Management)
-- **Cấu trúc Định danh & Phân loại:**
-  - `task_number`: Số tự tăng theo dự án (`#1, #2, #3...`).
-  - `issue_key`: Mã duy nhất kết hợp giữa Key và Number (`TASK-1`, `TASK-2`...).
-  - `issue_type`: 🟢 `TASK` (Công việc) | 🔵 `STORY` (Tính năng) | 🔴 `BUG` (Lỗi) | 🟣 `SUBTASK`.
-- **Đánh giá Kép (Priority vs Risk Level):**
-  - `priority`: Độ khẩn cấp (`LOWEST` | `LOW` | `MEDIUM` | `HIGH` | `BLOCKER`).
-  - `risk_level`: Mức độ rủi ro hệ thống (`LOW` | `MEDIUM` | `HIGH` | `CRITICAL`). Task có mức `CRITICAL` bắt buộc hiển thị icon cảnh báo đỏ.
-- **Cấu trúc Nội dung khi Click vào Task (Slide-over Drawer):**
-  - **Mô tả công việc (Overview / Job Description):** Trả lời câu hỏi *"Tại sao làm và kết quả kỳ vọng là gì?"*.
-  - **Chi tiết việc phải làm (Action Checklist):** Danh sách các bước cụ thể có checkbox tích chọn. Tự động tính tỷ lệ hoàn thành (`0% ➔ 100% progress bar`).
-  - **Audit & Timestamps:** `created_at` (Ngày tạo), `updated_at` (Ngày sửa gần nhất), `due_date` (Hạn chót).
-  - **Vị trí sắp xếp (`order_index`):** Số thực (Fractional Indexing) để kéo thả chèn giữa 2 task không cần update toàn bảng.
+### Phân hệ 2: Quản lý Đa Dự Án (`/spaces`) & Kiểm tra Tài khoản Thành viên (`Members`)
+- **Tạo Dự Án:** Tự động gợi ý `projectKey` viết tắt (2–10 ký tự in hoa, chống trùng), tự sinh 4 cột Kanban mặc định và `Sprint 1`.
+- **Thẻ Dự Án:** Hiển thị biểu tượng dự án Font Awesome 6 Gradient, thanh tiến độ `% Hoàn thành` tính từ cột `Done / Hoàn thành` và danh sách Avatar viết tắt 2 chữ cái (`SO`, `ND`, `TQ`, `LD`).
+- **Kiểm tra tài khoản đã tạo theo Email (`checkUserByEmail`):** Trước khi thêm người vào dự án, hệ thống kiểm tra email trên CSDL:
+  - `✅ Đã có tài khoản`: Hiển thị họ tên và cho phép thêm ngay vào dự án.
+  - `⚠️ Đã ở trong dự án`: Cảnh báo và chặn thêm trùng.
+  - `❌ Chưa tạo tài khoản`: Cảnh báo rõ ràng và gợi ý chuyển sang tab *"+ Tạo & Mời người mới"* để cấp link `/accept-invite`.
 
-### Phân hệ 3: Bảng Kanban Kéo Thả (Kanban Board View)
-- Mặc định gồm 4 cột trạng thái chuẩn:
-  1. `To Do` (Cần làm) - Mã màu xám `#6B7280`.
-  2. `In Progress` (Đang làm) - Mã màu xanh `#3B82F6`.
-  3. `In Review` (Xét duyệt) - Mã màu tím `#8B5CF6`.
-  4. `Done` (Hoàn thành) - Mã màu xanh lá `#10B981`.
-- **Thao tác Kéo Thả:** Sử dụng thư viện `@dnd-kit`, kéo thẻ chuyển cột hoặc đổi vị trí trong cột mượt mà.
-- **Bộ Lọc Nhanh (Quick Filters):**
-  - Lọc "Chỉ việc của tôi" (My tasks).
-  - Lọc "Rủi ro cao" (Critical / High risk).
-  - Lọc "Sắp trễ hạn" (Due soon trong 48h).
-  - Lọc theo Giai đoạn (Milestone).
-- **Đồng bộ Thời Gian Thực (Realtime Sync):** Bắn sự kiện WebSocket (`TASK_MOVED`) khi có thành viên kéo thẻ để tự động cập nhật màn hình người khác.
+### Phân hệ 3: Quản lý Task Chuẩn Jira & Tạo Hàng Loạt (`Single & Bulk Create`)
+- **Định danh tự động:** `issueKey` kết hợp `projectKey` và số thứ tự tăng dần (`TASK-1`, `TASK-2`...).
+- **Phân loại & Đánh giá kép:**
+  - `issueType`: `TASK` | `STORY` | `BUG` | `SUBTASK`.
+  - `priority`: `BLOCKER` (Highest) | `HIGH` | `MEDIUM` | `LOW`.
+  - `riskLevel`: `LOW` | `MEDIUM` | `HIGH` | `CRITICAL` (Cảnh báo đỏ `🔥 Critical`).
+- **Tạo Task Hàng Loạt (`BulkCreateTaskModal`):**
+  1. **Dán danh sách (Paste List):** Tự động nhận diện mỗi dòng là 1 task, bóc tách thông minh tiền tố `[BUG]`, `[STORY]`, `[TASK]` và hậu tố `| [HIGH]`, `| [BLOCKER]`, `| [LOW]`.
+  2. **Import file `.CSV`:** Hỗ trợ tải file `.CSV` mẫu và import tới 100 công việc trong 1 Transaction CSDL.
+- **Slide-over Task Drawer (`TaskDrawer`):**
+  - Cho phép sửa trực tiếp **Tiêu đề**, **Mô tả công việc**, **Trạng thái**, **Người làm**, **Giai đoạn (Milestone)**, **Độ ưu tiên**, **Mức rủi ro**, **Hạn chót**.
+  - **Action Checklist:** Thêm bước cần làm, tích chọn tự động nhảy thanh tiến độ `0% ➔ 100%`, xóa mục gõ sai và lưu vết `ActivityLog`.
 
-### Phân hệ 4: Kênh Chat Trao Đổi & Mail Tự Động
-- **Kênh Chat:**
-  - Hỗ trợ Chat 1-1 và Chat theo Kênh Dự án (`ChatChannel`).
-  - Thảo luận trực tiếp dưới dạng bình luận (Comments) trong từng Task.
-- **Gửi Mail Chạy Ngầm (Background Queue):**
-  - Kích hoạt gửi email tự động khi:
-    1. Thành viên được phân công làm Assignee của một Task mới.
-    2. Deadline của Task bị dời hoặc thay đổi.
-    3. Task sắp hết hạn trong vòng 24h (Cron reminder).
-  - Sử dụng cơ chế hàng đợi bất đồng bộ (Queue/Worker), tuyệt đối không block luồng xử lý API chính. *(Đã loại bỏ Video Meeting)*.
+### Phân hệ 4: Đa Góc Nhìn Chuẩn Jira (5 Multi-Views)
+1. **Summary View:** 4 thẻ KPI tổng quan, biểu đồ tiến độ theo Trạng thái, Độ ưu tiên và Khối lượng công việc từng thành viên.
+2. **List View:** Bảng danh sách công việc hỗ trợ **Sort 3 trạng thái trên cả 7 cột**, Filter theo Avatar/Priority/Milestone, **Group by** (`Status`, `Priority`, `Assignee`), tìm kiếm tức thì và tạo nhanh inline `+ Create`.
+3. **Board View:** Bảng Kanban kéo thả 4 cột (`To Do`, `In Progress`, `In Review`, `Done`) kèm bộ lọc nhanh (*Việc của tôi, Rủi ro cao, Có hạn chót, Lọc giai đoạn*).
+4. **Timeline View:** Quản lý tiến độ theo từng Giai đoạn / Sprint (`UPCOMING`, `IN_PROGRESS`, `COMPLETED`).
+5. **Members View:** Quản lý nhân sự dự án, kiểm tra tài khoản theo Email và phân quyền.
 
----
-
-## 3. TIÊU CHUẨN HOÀN THÀNH (DEFINITION OF DONE - DoD)
-Một tính năng chỉ được xem là hoàn thành khi:
-1. Đã được viết code hoàn chỉnh và build không phát sinh lỗi (`npm run build` pass 100%).
-2. Đã lưu vết hoạt động vào bảng `ACTIVITY_LOGS`.
-3. Đã tự kiểm thử trên ít nhất 2 kịch bản: luồng chuẩn (Happy path) và luồng dữ liệu biên/xấu.
-4. Cập nhật tiến độ vào file `docs/tien_do_du_an.md`.
+### Phân hệ 5: Thông báo In-App 🔔 & Giao diện Sáng/Tối
+- **Chuông thông báo (`NotificationBell`):** Tự động bắn thông báo khi được mời vào dự án, được giao task mới, task chuyển sang `Chờ duyệt (In Review)` hoặc thay đổi hạn chót. Hỗ trợ lọc *Tất cả / Chưa đọc* và *Đọc tất cả*.
+- **Theme & Responsive:** Chuyển đổi mượt mà giữa **Dark Mode** (Jira Dark) và **Light Mode**, ẩn thanh cuộn thô và tương thích hoàn toàn trên cả Desktop lẫn Mobile (`390px`).

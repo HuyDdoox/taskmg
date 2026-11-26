@@ -81,7 +81,32 @@ export function BulkCreateTaskModal({
       .split(/\r?\n/)
       .map((line) => line.replace(/^(\s*[-*•]|\s*\d+[.)])\s+/, '').trim())
       .filter((line) => line.length > 0)
-      .map((title) => ({ title }));
+      .map((rawLine) => {
+        let working = rawLine;
+        let extractedType: string | undefined;
+        let extractedPriority: string | undefined;
+
+        // 1. Tách tiền tố [TASK] / [BUG] / [STORY] / [SUBTASK] ở đầu dòng
+        const prefixMatch = working.match(/^\[(TASK|BUG|STORY|SUBTASK)\]\s*/i);
+        if (prefixMatch) {
+          extractedType = prefixMatch[1].toUpperCase();
+          working = working.slice(prefixMatch[0].length).trim();
+        }
+
+        // 2. Tách hậu tố | [HIGH] hoặc | HIGH ở cuối dòng
+        const suffixMatch = working.match(/\s*\|\s*\[?(BLOCKER|HIGHEST|HIGH|MEDIUM|LOW|LOWEST)\]?\s*$/i);
+        if (suffixMatch) {
+          const rawPrio = suffixMatch[1].toUpperCase();
+          extractedPriority = rawPrio === 'HIGHEST' ? 'BLOCKER' : rawPrio;
+          working = working.slice(0, working.length - suffixMatch[0].length).trim();
+        }
+
+        return {
+          title: working || rawLine,
+          issueType: extractedType,
+          priority: extractedPriority,
+        };
+      });
   }, [rawText]);
 
   const activeItems = mode === 'PASTE' ? pastedRows : csvRows;

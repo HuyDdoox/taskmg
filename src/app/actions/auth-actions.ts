@@ -69,9 +69,22 @@ export async function registerAction(fullNameInput: string, emailInput: string, 
   }
 }
 
+const DEMO_EMAIL_WHITELIST = [
+  'sep@company.com',
+  'tester@company.com',
+  'deva@company.com',
+  'designer@company.com',
+];
+
 export async function quickLoginDemoAction(emailInput: string) {
   try {
     const email = emailInput.trim().toLowerCase();
+    if (!DEMO_EMAIL_WHITELIST.includes(email)) {
+      return {
+        success: false,
+        error: 'Chỉ 4 tài khoản mẫu Demo (@company.com) mới được phép đăng nhập nhanh!',
+      };
+    }
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return { success: false, error: 'Tài khoản demo không tồn tại' };
@@ -94,7 +107,9 @@ export async function logoutAction() {
 export async function getDemoAccounts() {
   try {
     const users = await prisma.user.findMany({
-      take: 6,
+      where: {
+        email: { in: DEMO_EMAIL_WHITELIST },
+      },
       orderBy: { createdAt: 'asc' },
       select: {
         id: true,

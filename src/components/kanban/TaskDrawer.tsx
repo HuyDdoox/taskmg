@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   toggleChecklistItem,
   addChecklistItem,
+  deleteChecklistItem,
   updateTaskFields,
   deleteTask,
 } from '@/app/actions/task-actions';
@@ -14,6 +15,7 @@ import {
   isDoneColumnTitle,
 } from '@/lib/rbac';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+
 interface TaskDrawerProps {
   task: any | null;
   project?: any;
@@ -40,8 +42,19 @@ export function TaskDrawer({
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [addingChecklist, setAddingChecklist] = useState(false);
 
+  // Inline editing for Title & Description
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(task?.title || '');
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
+  const [descDraft, setDescDraft] = useState(task?.description || '');
+  const [savingText, setSavingText] = useState(false);
+
   useEffect(() => {
     setChecklists(task?.checklists || []);
+    setTitleDraft(task?.title || '');
+    setDescDraft(task?.description || '');
+    setIsEditingTitle(false);
+    setIsEditingDesc(false);
   }, [task]);
 
   if (!task) return null;
@@ -99,6 +112,22 @@ export function TaskDrawer({
     }
   };
 
+  const handleRemoveChecklist = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!canEditChecklist) return;
+    const prevList = checklists;
+    const updatedList = checklists.filter((c) => c.id !== id);
+    setChecklists(updatedList);
+
+    const res = await deleteChecklistItem(id, project?.id);
+    if (res.success) {
+      if (onTaskUpdated) onTaskUpdated({ ...task, checklists: updatedList });
+    } else {
+      setChecklists(prevList);
+      if (res.error) alert(res.error);
+    }
+  };
+
   const handleFieldUpdate = async (patch: any) => {
     if (!project?.id) return;
     const res = await updateTaskFields(task.id, project.id, patch);
@@ -107,6 +136,30 @@ export function TaskDrawer({
     } else if (res.error) {
       alert(res.error);
     }
+  };
+
+  const handleSaveTitle = async () => {
+    const trimmed = titleDraft.trim();
+    if (!trimmed || trimmed === task.title) {
+      setIsEditingTitle(false);
+      setTitleDraft(task.title);
+      return;
+    }
+    setSavingText(true);
+    await handleFieldUpdate({ title: trimmed });
+    setSavingText(false);
+    setIsEditingTitle(false);
+  };
+
+  const handleSaveDescription = async () => {
+    if (descDraft === (task.description || '')) {
+      setIsEditingDesc(false);
+      return;
+    }
+    setSavingText(true);
+    await handleFieldUpdate({ description: descDraft });
+    setSavingText(false);
+    setIsEditingDesc(false);
   };
 
   const handleDelete = async () => {
@@ -187,27 +240,145 @@ export function TaskDrawer({
 
         {/* Drawer Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <h2 className={`text-lg font-bold leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            {task.title}
-          </h2>
+          {/* Task Title (Editable for authorized users) */}
+          {isEditingTitle && canEditStatus ? (
+            <div className="space-y-2">
+              <input
+                type="text"
+                autoFocus
+                value={titleDraft}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveTitle();
+                  if (e.key === 'Escape') {
+                    setTitleDraft(task.title);
+                    setIsEditingTitle(false);
+                  }
+                }}
+                className={`w-full px-3 py-2 rounded-lg border text-base font-bold focus:outline-none focus:ring-2 focus:ring-[#579DFF] ${
+                  isDark
+                    ? 'bg-[#1D2125] border-[#579DFF] text-white'
+                    : 'bg-white border-blue-500 text-gray-900'
+                }`}
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={savingText}
+                  onClick={handleSaveTitle}
+                  className="px-3 py-1 rounded-md bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
+                >
+                  Lưu tiêu đề
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTitleDraft(task.title);
+                    setIsEditingTitle(false);
+                  }}
+                  className="px-3 py-1 rounded-md border border-[#38414A] text-xs cursor-pointer"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="group flex items-start justify-between gap-2">
+              <h2
+                onClick={() => {
+                  if (canEditStatus) setIsEditingTitle(true);
+                }}
+                className={`text-lg font-bold leading-snug ${
+                  canEditStatus ? 'cursor-pointer hover:text-[#579DFF]' : ''
+                } ${isDark ? 'text-white' : 'text-gray-900'}`}
+                title={canEditStatus ? 'Bấm để sửa tiêu đề công việc' : undefined}
+              >
+                {task.title}
+              </h2>
+              {canEditStatus && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingTitle(true)}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-[#2C333A] text-xs text-[#8C9BAB] hover:text-white transition-opacity cursor-pointer"
+                  title="Sửa tiêu đề"
+                >
+                  <i className="fa-solid fa-pen" />
+                </button>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left column (2/3) */}
             <div className="md:col-span-2 space-y-6">
-              {/* Description */}
+              {/* Description (Editable) */}
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center gap-1.5">
-                  <i className="fa-solid fa-tag" /> Mô Tả Công Việc
-                </label>
-                <div
-                  className={`p-3.5 rounded-lg border text-sm leading-relaxed whitespace-pre-line ${
-                    isDark
-                      ? 'border-[#2C333A] bg-[#1D2125] text-[#DEE4EA]'
-                      : 'border-gray-200 bg-gray-50/50 text-gray-800'
-                  }`}
-                >
-                  {task.description || 'Chưa có mô tả chi tiết cho công việc này.'}
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-70 flex items-center gap-1.5">
+                    <i className="fa-solid fa-tag" /> Mô Tả Công Việc
+                  </label>
+                  {canEditStatus && !isEditingDesc && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingDesc(true)}
+                      className="text-[11px] text-[#579DFF] hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <i className="fa-solid fa-pen text-[10px]" /> Chỉnh sửa
+                    </button>
+                  )}
                 </div>
+
+                {isEditingDesc && canEditStatus ? (
+                  <div className="space-y-2">
+                    <textarea
+                      rows={4}
+                      autoFocus
+                      value={descDraft}
+                      onChange={(e) => setDescDraft(e.target.value)}
+                      placeholder="Nhập mô tả chi tiết công việc, mục tiêu hoặc tài liệu đính kèm..."
+                      className={`w-full p-3 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#579DFF] ${
+                        isDark
+                          ? 'bg-[#1D2125] border-[#38414A] text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={savingText}
+                        onClick={handleSaveDescription}
+                        className="px-3 py-1.5 rounded-md bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold cursor-pointer"
+                      >
+                        Lưu mô tả
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDescDraft(task.description || '');
+                          setIsEditingDesc(false);
+                        }}
+                        className="px-3 py-1.5 rounded-md border border-[#38414A] text-xs cursor-pointer"
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => {
+                      if (canEditStatus) setIsEditingDesc(true);
+                    }}
+                    className={`p-3.5 rounded-lg border text-sm leading-relaxed whitespace-pre-line ${
+                      canEditStatus ? 'cursor-pointer hover:border-[#579DFF]/60' : ''
+                    } ${
+                      isDark
+                        ? 'border-[#2C333A] bg-[#1D2125] text-[#DEE4EA]'
+                        : 'border-gray-200 bg-gray-50/50 text-gray-800'
+                    }`}
+                  >
+                    {task.description || 'Chưa có mô tả chi tiết cho công việc này. (Bấm để thêm mô tả)'}
+                  </div>
+                )}
               </div>
 
               {/* Action Checklist */}
@@ -237,7 +408,7 @@ export function TaskDrawer({
                     <div
                       key={item.id}
                       onClick={() => handleToggleChecklist(item.id, item.isCompleted)}
-                      className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
+                      className={`group flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all ${
                         item.isCompleted
                           ? isDark
                             ? 'bg-emerald-500/10 border-emerald-500/30 text-[#8C9BAB] line-through'
@@ -255,6 +426,16 @@ export function TaskDrawer({
                         className="mt-0.5 w-4 h-4 rounded accent-[#0C66E4] cursor-pointer"
                       />
                       <span className="text-xs flex-1">{item.title}</span>
+                      {canEditChecklist && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleRemoveChecklist(e, item.id)}
+                          className="opacity-0 group-hover:opacity-100 text-[#8C9BAB] hover:text-red-400 px-1 transition-opacity cursor-pointer"
+                          title="Xóa mục này"
+                        >
+                          <i className="fa-solid fa-xmark text-xs" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -359,6 +540,29 @@ export function TaskDrawer({
                         value: m.user.id,
                         label: m.user.fullName,
                         subLabel: m.role,
+                      })),
+                    ]}
+                  />
+                </div>
+              )}
+
+              {/* Milestone */}
+              {project?.milestones && project.milestones.length > 0 && (
+                <div className="space-y-1">
+                  <span className="opacity-70 font-medium">Giai đoạn (Milestone):</span>
+                  <CustomSelect
+                    value={task.milestoneId || ''}
+                    disabled={!canEditMeta}
+                    isDark={isDark}
+                    className="w-full"
+                    buttonClassName={`${selectClass} flex`}
+                    minMenuWidth="w-full"
+                    onChange={(val) => handleFieldUpdate({ milestoneId: val || null })}
+                    options={[
+                      { value: '', label: '-- Không gắn giai đoạn --' },
+                      ...project.milestones.map((m: any) => ({
+                        value: m.id,
+                        label: m.title,
                       })),
                     ]}
                   />

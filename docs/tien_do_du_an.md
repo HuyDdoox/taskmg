@@ -1,47 +1,29 @@
 # BẢNG THEO DÕI TIẾN ĐỘ DỰ ÁN (PROJECT PROGRESS TRACKER)
 
-> **Dự án:** Website Quản lý Công việc & Dự án (Task Management System)  
-> **Cập nhật lần cuối:** 25/11/2026 15:05  
-> **Tổng thể tiến độ:** **100% CÁC MODULE CỐT LÕI ĐÃ HOÀN THÀNH & GO-LIVE TRỰC TUYẾN**
+> **Dự án:** TaskMG Workspace — Hệ thống Quản lý Dự án & Công việc chuẩn Jira  
+> **Cập nhật lần cuối:** 26/11/2026  
+> **Tổng thể tiến độ:** **100% HOÀN THIỆN, ĐÃ KIỂM THỬ E2E 20/20 KỊCH BẢN & VẬN HÀNH LIVE**  
+> **Link Production:** [https://taskmg-six.vercel.app/](https://taskmg-six.vercel.app/)
 
 ---
 
-## 📊 TIẾN ĐỘ 5 PHA DỰ ÁN
+## 📌 BẢNG NGHIỆM THU CÁC HẠNG MỤC CỐT LÕI
 
-```mermaid
-gantt
-    title LỘ TRÌNH 5 PHA DỰ ÁN (ĐÃ HOÀN TẤT GO-LIVE)
-    dateFormat  YYYY-MM-DD
-    section Pha 1
-    Phân tích BA & CSDL 10 bảng       :done, p1, 2026-11-01, 2026-11-21
-    section Pha 2 & 3
-    Thiết kế UI & Cắt Kanban Jira     :done, p2, 2026-11-21, 2026-11-23
-    Chi tiết Task Drawer & Checklist  :done, p3, 2026-11-23, 2026-11-24
-    Socket.io Realtime & Chat Kênh   :done, p4, 2026-11-24, 2026-11-25
-    section Pha 4
-    Kiểm thử chức năng & Build Type   :done, p5, 2026-11-25, 2026-11-25
-    section Pha 5
-    Triển khai Cloud Vercel + Supabase:done, p6, 2026-11-25, 2026-11-25
-```
+| Mã Hạng Mục | Tên Phân Hệ / Tính Năng | Mức Ưu Tiên | Trạng Thái Nghiệm Thu |
+| :---: | :--- | :---: | :--- |
+| **MOD-01** | Landing Page tĩnh + Đăng ký / Đăng nhập / Whitelist 4 Role Demo | `BLOCKER` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-02** | Quản lý Đa Dự Án (`/spaces`), Tiến độ `% Done`, Icon Font Awesome 6 | `HIGH` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-03** | Kiểm tra Email đã tạo tài khoản chưa & Link mời `/accept-invite` 1 lần | `HIGH` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-04** | Phân quyền RBAC 4 Vai trò (`ADMIN`, `PM`, `MEMBER`, `VIEWER`) & Chống IDOR | `BLOCKER` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-05** | 5 Góc nhìn Jira (`Summary`, `List` Sort 7 cột/Group/Filter, `Board`, `Timeline`, `Members`) | `HIGH` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-06** | Tạo Task Hàng Loạt (Paste danh sách tự tách `[BUG] \| [HIGH]` & Import `.CSV`) | `HIGH` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-07** | Slide-over Task Drawer (Sửa Tiêu đề/Mô tả/Milestone, thêm/tích/xóa Checklist `%`) | `MEDIUM` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-08** | Chuông Thông báo In-App 🔔 (`NotificationBell`) & Chuyển đổi Dark/Light Mode | `MEDIUM` | ✅ **HOÀN THÀNH 100%** |
+| **MOD-09** | Kiểm thử E2E 20/20 Kịch bản QA trên Live Vercel ([docs/qa_test_report.md](file:///e:/Hocki5/Task/docs/qa_test_report.md)) | `HIGH` | ✅ **PASS 20/20 (100%)** |
 
 ---
 
-## 📌 BẢNG NGHIỆM THU CHI TIẾT TỪNG TASK
-
-| Mã Task | Tên Công Việc | Ưu tiên | Rủi ro | Người làm | Trạng thái Nghiệm Thu |
-| :---: | :--- | :---: | :---: | :---: | :---: |
-| **TASK-1** | Thiết kế CSDL 10 bảng chuẩn hóa | `BLOCKER` | `CRITICAL` | Dev A | ✅ **HOÀN THÀNH (Đã đẩy Supabase)** |
-| **TASK-2** | Khởi tạo dự án Next.js 15 & Prisma ORM | `HIGH` | `MEDIUM` | Dev A | ✅ **HOÀN THÀNH (Đã deploy Vercel)** |
-| **TASK-3** | Xây dựng Bảng Kanban kéo thả chuẩn Jira | `HIGH` | `HIGH` | Dev A | ✅ **HOÀN THÀNH (Kéo thả 60fps)** |
-| **TASK-4** | Tích hợp Drawer trượt xem Task & Checklist | `MEDIUM` | `LOW` | Dev A | ✅ **HOÀN THÀNH (Checklist % tiến độ)** |
-| **TASK-5** | Cấu hình Socket.io đồng bộ realtime Kanban | `HIGH` | `HIGH` | Dev A | ✅ **HOÀN THÀNH (Render WebSocket)** |
-| **TASK-6** | Xây dựng Kênh Chat dự án thời gian thực | `MEDIUM` | `MEDIUM` | Dev A | ✅ **HOÀN THÀNH (Lưu Supabase + Socket)** |
-| **TASK-7** | Phân chia Giai đoạn dự án (Milestones) | `HIGH` | `MEDIUM` | Dev A | ✅ **HOÀN THÀNH (Tab Giai đoạn)** |
-
----
-
-## 🌐 HẠ TẦNG CLOUD LIVE
-- **Frontend & Fullstack Server Actions:** Vercel Hosting (Auto-deploy từ GitHub `main`).
-- **Cơ sở dữ liệu:** Supabase PostgreSQL Cloud (Region: `ap-south-1`).
-- **Máy chủ Realtime WebSocket:** Render Web Service (`server/`).
+## 🌐 HẠ TẦNG CLOUD ĐANG VẬN HÀNH
+- **Fullstack Hosting:** Vercel Production (`bom1` Mumbai — tối ưu độ trễ với CSDL).
+- **Cơ sở dữ liệu:** Supabase PostgreSQL Cloud (`ap-south-1` — kết nối qua IPv4 Pooler `6543`).
 - **Kho lưu trữ mã nguồn:** GitHub [https://github.com/HuyDdoox/taskmg.git](https://github.com/HuyDdoox/taskmg.git).

@@ -363,6 +363,31 @@ export async function addChecklistItem(taskId: string, title: string, projectId?
   }
 }
 
+export async function deleteChecklistItem(checklistId: string, projectId?: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const item = await prisma.taskChecklist.findUnique({
+      where: { id: checklistId },
+      include: { task: true },
+    });
+    if (!item) return { success: false, error: 'Mục checklist không tồn tại' };
+
+    const role = await resolveUserProjectRole(item.task.projectId, user.id);
+    if (!canUserToggleChecklist(role, item.task.assigneeId, user.id)) {
+      return { success: false, error: 'Bạn không có quyền xóa mục Checklist của công việc này!' };
+    }
+
+    await prisma.taskChecklist.delete({ where: { id: checklistId } });
+    if (projectId) revalidatePath(`/projects/${projectId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Lỗi xóa Checklist:', error);
+    return { success: false, error: 'Không thể xóa mục checklist' };
+  }
+}
+
 export async function createQuickTask(data: {
   projectId: string;
   title: string;

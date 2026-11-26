@@ -7,22 +7,29 @@ import {
   canUserModifyTaskStatus,
   isDoneColumnTitle,
 } from '@/lib/rbac';
+
 interface KanbanBoardProps {
   project: any;
   currentUser?: any;
   permissions: ProjectPermissions;
-  socket?: any;
   isDark?: boolean;
   onSelectTask: (task: any) => void;
   onOpenCreateModal: (columnId?: string) => void;
   onTaskMoved: (taskId: string, targetColumnId: string, newOrderIndex: number) => void;
 }
 
+function getInitials(name?: string) {
+  if (!name) return '?';
+  const cleaned = name.replace(/\([^)]*\)/g, '').trim();
+  const parts = (cleaned || name.trim()).split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function KanbanBoard({
   project,
   currentUser,
   permissions,
-  socket,
   isDark = true,
   onSelectTask,
   onOpenCreateModal,
@@ -105,14 +112,6 @@ export function KanbanBoard({
     const res = await updateTaskColumn(taskId, targetColumnId, newOrderIndex);
     if (!res.success) {
       alert(res.error || 'Không thể lưu trạng thái kéo thả lên máy chủ');
-    } else if (socket) {
-      socket.emit('task_moved', {
-        projectId: project.id,
-        taskId,
-        issueKey: foundTask.issueKey,
-        targetColumnId,
-        orderIndex: newOrderIndex,
-      });
     }
   };
 
@@ -157,7 +156,11 @@ export function KanbanBoard({
         }`}
       >
         <div className="relative w-56">
-          <i className={`fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 ${ isDark ? 'text-[#8C9BAB]' : 'text-gray-400' }`} />
+          <i
+            className={`fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 ${
+              isDark ? 'text-[#8C9BAB]' : 'text-gray-400'
+            }`}
+          />
           <input
             type="text"
             placeholder="Tìm task trên board..."
@@ -376,7 +379,7 @@ export function KanbanBoard({
                             title={task.assignee?.fullName || 'Unassigned'}
                             className="w-5 h-5 rounded-full bg-[#0C66E4] text-white flex items-center justify-center text-[9px] font-bold"
                           >
-                            {task.assignee?.fullName?.charAt(0) || '?'}
+                            {getInitials(task.assignee?.fullName)}
                           </div>
                         </div>
                       </div>
