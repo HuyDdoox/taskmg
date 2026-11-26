@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createProject, deleteProject } from '@/app/actions/project-actions';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getRoleBadgeStyle } from '@/lib/rbac';
+import { getProjectVisual } from '@/lib/project-icons';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 interface ProjectsDashboardProps {
   initialProjects: any[];
@@ -282,9 +283,16 @@ export function ProjectsDashboard({ initialProjects, currentUser }: ProjectsDash
                     {/* Card Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0C66E4] to-[#579DFF] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs font-mono">
-                          {project.projectKey}
-                        </div>
+                        {(() => {
+                          const vis = getProjectVisual(project.projectKey || project.id);
+                          return (
+                            <div
+                              className={`w-10 h-10 rounded-xl bg-gradient-to-br ${vis.gradient} text-white flex items-center justify-center shrink-0 shadow-sm`}
+                            >
+                              <i className={`${vis.icon} text-base`} />
+                            </div>
+                          );
+                        })()}
                         <div className="min-w-0">
                           <h2
                             className={`font-bold text-sm truncate group-hover:text-[#579DFF] transition-colors ${

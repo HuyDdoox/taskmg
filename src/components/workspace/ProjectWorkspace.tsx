@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logoutAction } from '@/app/actions/auth-actions';
 import { getProjectPermissions, getRoleBadgeStyle, ProjectRole } from '@/lib/rbac';
+import { getProjectVisual } from '@/lib/project-icons';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import { SummaryView } from './SummaryView';
@@ -208,9 +209,16 @@ export function ProjectWorkspace({
             </div>
 
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[#0C66E4] to-sky-400 text-white font-bold text-[10px] font-mono flex items-center justify-center shadow-xs">
-                {project.projectKey}
-              </div>
+              {(() => {
+                const vis = getProjectVisual(project.projectKey || project.id);
+                return (
+                  <div
+                    className={`w-7 h-7 rounded-lg bg-gradient-to-br ${vis.gradient} text-white flex items-center justify-center shadow-xs shrink-0`}
+                  >
+                    <i className={`${vis.icon} text-xs`} />
+                  </div>
+                );
+              })()}
               <h1 className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 {project.name}
               </h1>
