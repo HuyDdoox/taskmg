@@ -1,109 +1,122 @@
-# CẨM NANG SLIDE THUYẾT TRÌNH (BẢN NGẮN GỌN — KEYWORD & SƠ ĐỒ TƯ DUY)
-## Đề tài: Cách Điều Phối AI Từ Ý Tưởng Ra Sản Phẩm Web Hoàn Chỉnh (Case Study: TaskMG Workspace)
+# CẨM NANG SLIDE THUYẾT TRÌNH: QUY TRÌNH 7 BƯỚC LÀM DỰ ÁN THỰC TẾ CÙNG AI
+*(Từ Setup AI ➔ Tổng hợp Hồ sơ Nghiệp vụ & Việc làm chi tiết ➔ Chốt & Build từng Pha ➔ Người & AI Kiểm tra ➔ Deploy Go-Live)*
 
-> **Mục tiêu bộ Slide:** Giúp bất kỳ ai nhìn vào trong **3 giây** là hiểu ngay **Sơ đồ tư duy & Các bước thực chiến** để chỉ đạo AI làm ra một sản phẩm chạy thật trên Internet (`https://taskmg-six.vercel.app/`).  
-> **Nguyên tắc trình bày:** Ít chữ tối đa (3–7 từ/ý) • Dùng từ khóa hành động (Action Keywords) • Bố cục dạng Sơ đồ luồng (`👤 Sếp chỉ đạo` ➔ `🤖 AI thực thi` ➔ `🎯 Kết quả`).
+> **Sản phẩm Thực tế (Case Study):** TaskMG Workspace — Hệ thống Quản lý Dự án & Công việc chuẩn Jira  
+> **Link Go-Live Vercel:** [https://taskmg-six.vercel.app/](https://taskmg-six.vercel.app/)  
+> **Link Realtime Render v2.0:** [https://taskmg-backend.onrender.com/](https://taskmg-backend.onrender.com/)  
+> **Kho Mã nguồn & Hồ sơ `docs/`:** [https://github.com/HuyDdoox/taskmg.git](https://github.com/HuyDdoox/taskmg.git)
 
 ---
 
-## 🗺️ SƠ ĐỒ TƯ DUY TỔNG THỂ (MASTER MINDMAP)
+## 🗺️ SƠ ĐỒ TƯ DUY TỔNG THỂ 7 BƯỚC (MASTER WORKFLOW)
 
 ```mermaid
 flowchart LR
-    PO["👤 BẠN (SẾP / PO)\nRa đề • Chọn Option • Nghiệm thu"] --> B1["1️⃣ ĐẶT LUẬT 5 BƯỚC\nĐưa 3 Options ➔ Chốt Checklist"]
-    B1 --> B2["2️⃣ TINH GỌN ĐỀ BÀI\nBỏ Video/Chat ➔ Giữ lõi Jira"]
-    B2 --> B3["3️⃣ DỰNG 5 GÓC NHÌN\nSummary • List • Board • Timeline • Members"]
-    B3 --> B4["4️⃣ NÂNG CẤP THỰC TẾ\nTạo Task hàng loạt • Check Email • 4 Role"]
-    B4 --> B5["5️⃣ CHẠY CLOUD & TEST LIVE\nVercel + Render + Supabase • AI tự test 20 ca"]
+    B1["1️⃣ SETUP AI\nRules + Bộ Skills\ncho từng việc"] --> B2["2️⃣ TỔNG HỢP\nTHÔNG TIN\nLàm rõ bài toán"]
+    B2 --> B3["3️⃣ HỒ SƠ NGHIỆP VỤ\nKế hoạch + Danh sách\nviệc chi tiết (docs/)"]
+    B3 --> B4["4️⃣ BỔ SUNG & CHỐT\nChia dự án theo\ntừng Phase"]
+    B4 --> B5["5️⃣ AI BUILD\nTỪNG PHASE\nCSDL ➔ BE ➔ FE"]
+    B5 --> B6["6️⃣ NGƯỜI & AI\nKIỂM TRA TỪNG PHA\nDùng thử + Test 20 ca"]
+    B6 --> B7["7️⃣ DEPLOY GO-LIVE\nHoàn tất các pha ➔\nĐưa lên 3 Cloud"]
 ```
 
 ---
 
-## 📑 NỘI DUNG 8 SLIDES NGẮN GỌN THEO KEYWORD
+## 📑 NỘI DUNG CHI TIẾT 9 SLIDES (KEYWORD NGẮN GỌN & LỜI THUYẾT TRÌNH)
 
-### SLIDE 1: TRANG BÌA — CÁCH BIẾN Ý TƯỞNG THÀNH SẢN PHẨM THẬT CÙNG AI
+### SLIDE 1: TRANG BÌA — QUY TRÌNH LÀM DỰ ÁN THỰC TẾ CÙNG AI
 - **Keyword hiển thị trên Slide:**
-  - 👤 **Bạn = Sếp** *(Ra đề bài & Duyệt phương án)*
-  - 🤖 **AI = Đội ngũ Kỹ thuật** *(Phân tích, Code, Test, Deploy)*
-  - 🌐 **Sản phẩm thật:** `taskmg-six.vercel.app`
+  - 🧭 **Lộ trình:** `Setup AI` ➔ `Hồ sơ Nghiệp vụ` ➔ `Build từng Pha` ➔ `Deploy Go-Live`
+  - 🤝 **Phối hợp:** Con người định hướng & duyệt — AI thực thi & kiểm thử
+  - 🌐 **Sản phẩm Live:** `https://taskmg-six.vercel.app/`
   - 💻 **Mã nguồn:** `github.com/HuyDdoox/taskmg`
-- **Lời nói khi thuyết trình (15 giây):**
-  > *"Slide này chia sẻ lại đúng quy trình thực tế tôi đã làm việc với AI như thế nào để từ một ý tưởng ban đầu tạo ra được hệ thống quản lý dự án chuẩn Jira chạy thật trên Cloud."*
+- **Lời thuyết trình (15 giây):**
+  > *"Xin chào mọi người. Bài trình bày này chia sẻ quy trình 7 bước thực tế mà tôi đã áp dụng để điều phối AI đi từ khâu thiết lập ban đầu, lập hồ sơ nghiệp vụ, chia pha phát triển cho đến khi kiểm thử và đưa sản phẩm chạy Go-Live trên Cloud."*
 
 ---
 
-### SLIDE 2: SƠ ĐỒ TƯ DUY — MÔ HÌNH "1 SẾP + 4 VAI TRÒ AI"
-- **Sơ đồ 4 nhánh quanh Sếp:**
-  1. 🧠 **AI làm BA:** Lên danh sách tính năng & luồng người dùng
-  2. 💻 **AI làm Dev:** Lập trình Giao diện & Cơ sở dữ liệu
-  3. 🧪 **AI làm QA:** Tự mở trình duyệt chạy kiểm thử
-  4. ☁️ **AI làm DevOps:** Đưa web chạy Live 24/7 trên Cloud
-- **Lời nói khi thuyết trình (20 giây):**
-  > *"Thay vì coi AI chỉ là công cụ gõ code, tôi coi mình là Giám đốc sản phẩm (PO) và giao cho AI đóng đủ 4 vai trong một công ty phần mềm: từ phân tích nghiệp vụ, lập trình, kiểm thử cho đến đưa lên máy chủ."*
+### SLIDE 2: BƯỚC 1 — SETUP AI CHO CÁC CÔNG VIỆC KHÁC NHAU
+- **Keyword hiển thị trên Slide:**
+  - ⚙️ **`1. Cài đặt Rules cố định:`** Quy chuẩn làm việc 5 bước (*Plan & Confirm*)
+  - 🏗️ **`2. Skill Quy trình 7 Pha:`** Dẫn dắt dự án bài bản từ đầu đến cuối
+  - 🛡️ **`3. Skill Code Review & Debug:`** Soi chất lượng, bảo mật và tự sửa lỗi
+  - 🧪 **`4. Skill Testing & Browser:`** Viết test và tự mở trình duyệt kiểm tra
+- **Lời thuyết trình (20 giây):**
+  > *"Bước đầu tiên và quan trọng nhất là không dùng AI một cách tự phát. Trước khi làm, tôi thiết lập sẵn cho AI bộ Rules cố định và các Skills chuyên biệt cho từng việc khác nhau: có skill chuyên dẫn dắt dự án theo từng pha, skill chuyên review bảo mật, skill chuyên sửa lỗi và skill tự mở trình duyệt kiểm thử."*
 
 ---
 
-### SLIDE 3: BƯỚC 1 — ĐẶT "LUẬT 5 BƯỚC" ĐỂ AI KHÔNG CODE LOẠN
-- **Sơ đồ luồng 5 bước ngang (`01 ➔ 02 ➔ 03 ➔ 04 ➔ 05`):**
-  - **`01. Đưa 3 Options`** *(AI khảo sát & đề xuất hướng đi)*
-  - **`02. Sếp Chọn Hướng`** *(Chọn Option tối ưu nhất)*
-  - **`03. Chốt Checklist`** *(Cấm AI tự ý code khi chưa duyệt)*
-  - **`04. Code & Tự Sửa`** *(AI tự chạy Build & sửa lỗi)*
-  - **`05. Nghiệm Thu`** *(Báo cáo kết quả ngắn gọn)*
-- **Lời nói khi thuyết trình (20 giây):**
-  > *"Bí quyết đầu tiên là phải khóa cương AI bằng luật 5 bước: Trước mọi yêu cầu, AI bắt buộc phải đưa ra 3 phương án để tôi chọn, lập Checklist chờ tôi gật đầu duyệt rồi mới được viết code."*
+### SLIDE 3: BƯỚC 2 & 3 — TỔNG HỢP THÔNG TIN & LẬP HỒ SƠ NGHIỆP VỤ (`docs/`)
+- **Keyword hiển thị trên Slide:**
+  - 📥 **`1. Tổng hợp thông tin:`** Làm rõ bài toán, mục tiêu và đối tượng dùng
+  - 📘 **`2. Kiến thức nghiệp vụ:`** Đặc tả quy tắc & phân quyền (`business_logic.md`)
+  - 🗺️ **`3. Kế hoạch triển khai:`** Thiết kế kiến trúc & lược đồ 10 bảng CSDL
+  - 📋 **`4. Danh sách việc chi tiết:`** Chia nhỏ từng đầu việc rõ ràng (`TASK-1` ➔ `TASK-15`)
+- **Lời thuyết trình (25 giây):**
+  > *"Bước thứ hai và thứ ba là thu thập, tổng hợp toàn bộ thông tin lại. Tuyệt đối chưa cho AI viết code ngay, mà phải tổng hợp thành bộ hồ sơ kiến thức nghiệp vụ, kế hoạch triển khai tổng thể và danh sách công việc chi tiết cho từng hạng mục lưu trong thư mục docs/."*
 
 ---
 
-### SLIDE 4: BƯỚC 2 — TINH GỌN ĐỀ BÀI (BỎ THỪA, GIỮ LÕI)
-- **Sơ đồ So sánh 2 cột (`❌ Cắt Bỏ` vs `✅ Giữ Lõi`):**
-  - ❌ **Cắt bỏ:** Video họp & Kênh Chat làm nặng web
-  - ❌ **Cắt bỏ:** Gửi Mail OTP chậm chạp
-  - ✅ **Giữ lõi:** Quản lý Đa dự án & Bảng Kanban chuẩn Jira
-  - ✅ **Thay thế:** Link mời 1 lần (`/accept-invite`) & Chuông thông báo 🔔
-- **Lời nói khi thuyết trình (20 giây):**
-  > *"Khi AI vẽ ra quá nhiều tính năng như họp Video hay gửi mail OTP làm chậm hệ thống, tôi quyết định cắt bỏ ngay những phần rườm rà để tập trung 100% vào lõi quản lý dự án và tốc độ."*
+### SLIDE 4: BƯỚC 4 — BỔ SUNG, TINH GỌN & CHỐT DỰ ÁN THEO TỪNG PHA
+- **Keyword hiển thị trên Slide:**
+  - ✂️ **`1. Rà soát & Tinh gọn:`** Cắt bỏ Video/Chat thừa để tối ưu tốc độ web
+  - ➕ **`2. Bổ sung sát thực tế:`** Chốt 5 góc nhìn Jira & phân quyền 4 Role RBAC
+  - 🧱 **`3. Chia dự án theo từng Phase:`** Từ CSDL ➔ Backend ➔ Giao diện ➔ Kiểm thử
+  - 🔒 **`4. Khóa cổng duyệt (Quality Gate):`** Chốt kế hoạch từng pha mới bắt đầu code
+- **Lời thuyết trình (20 giây):**
+  > *"Có hồ sơ nháp rồi, tôi tiến hành rà soát: cái gì rườm rà như Video họp là cắt bỏ, cái gì cần thiết là bổ sung thêm vào, sau đó mới chính thức chốt kế hoạch chia dự án ra làm từng Phase rõ ràng."*
 
 ---
 
-### SLIDE 5: BƯỚC 3 — XÂY SẢN PHẨM THEO 5 GÓC NHÌN TRỰC QUAN
-- **Sơ đồ 5 thẻ tính năng chính:**
-  - 📊 **`1. Summary:`** Biểu đồ thống kê tiến độ
-  - 📋 **`2. List:`** Bảng công việc *(Lọc, Sắp xếp 7 cột, Gom nhóm)*
-  - 🗂️ **`3. Board:`** Bảng Kanban kéo thả 4 cột
-  - 📅 **`4. Timeline:`** Chia giai đoạn *(Sprints)*
-  - 👥 **`5. Members:`** Quản lý nhân sự dự án
-- **Lời nói khi thuyết trình (15 giây):**
-  > *"Từ đề bài đã tinh gọn, tôi chỉ đạo AI hoàn thiện không gian làm việc với 5 góc nhìn đồng bộ theo đúng chuẩn Jira: từ biểu đồ tổng quan, bảng danh sách, bảng kéo thả Kanban đến lộ trình Sprint."*
+### SLIDE 5: BƯỚC 5 — AI THỰC THI BUILD THEO TỪNG PHASE
+- **Keyword hiển thị trên Slide:**
+  - 🗄️ **`Phase 1 (Database):`** Khởi tạo 10 bảng PostgreSQL & nạp dữ liệu mẫu
+  - 🔐 **`Phase 2 (Backend & Auth):`** Lập trình Server Actions, Cookie `HttpOnly` & RBAC
+  - 💻 **`Phase 3 (Frontend 5 Views):`** Dựng `Summary`, `List`, `Board Kanban`, `Timeline`, `Members`
+  - ⚡ **`Phase 4 (Realtime & Bell):`** Kết nối Socket.io Non-Blocking & Chuông thông báo 🔔
+- **Lời thuyết trình (20 giây):**
+  > *"Sang bước 5, AI bắt đầu build lần lượt từng Phase theo đúng tài liệu nghiệp vụ đã chốt: làm móng CSDL trước, tiếp theo là tầng Backend phân quyền, rồi mới dựng giao diện 5 góc nhìn chuẩn Jira và kết nối đồng bộ thời gian thực."*
 
 ---
 
-### SLIDE 6: BƯỚC 4 — SẾP DÙNG THỬ & CHỈ ĐẠO AI NÂNG CẤP THỰC TẾ
-- **Sơ đồ 4 cặp `[Vấn đề thực tế] ➔ [Lệnh nâng cấp của Sếp]`:**
-  1. 🎨 **Icon xấu** ➔ *Bắt đổi toàn bộ sang bộ Icon Font Awesome mới*
-  2. ⚡ **Nhập từng task quá lâu** ➔ *Thêm tính năng **Tạo Task Hàng Loạt** (Dán danh sách / File CSV)*
-  3. 🔍 **Sợ thêm nhầm người chưa đăng ký** ➔ *Thêm nút **Kiểm tra Email đã có tài khoản chưa***
-  4. 🛡️ **Sợ nhân viên tự ý đóng việc** ➔ *Phân quyền **4 Role** (Khóa cột `Done` với Member)*
-- **Lời nói khi thuyết trình (25 giây):**
-  > *"Sau khi có khung sản phẩm, tôi trực tiếp vào dùng thử như người thật. Thấy icon xấu là bắt đổi; thấy nhập từng việc lâu là yêu cầu thêm Tạo Task Hàng Loạt; sợ thêm nhầm người là yêu cầu thêm bước Kiểm tra Email tài khoản trước khi thêm."*
+### SLIDE 6: BƯỚC 6A — CON NGƯỜI KIỂM TRA TỪNG PHA & CHỈ ĐẠO NÂNG CẤP
+- **Keyword hiển thị trên Slide:**
+  - 👀 **`1. Trực tiếp dùng thử từng Phase`** để đánh giá trải nghiệm thực tế
+  - 🎨 **`2. Giao diện & Biểu tượng:`** Yêu cầu đổi sang bộ Icon Font Awesome 6 sắc nét
+  - ⚡ **`3. Tốc độ nhập việc:`** Bổ sung tính năng **Tạo Danh Sách Task Hàng Loạt** (*Paste / CSV*)
+  - 🔍 **`4. Quản lý nhân sự:`** Bổ sung bước **Kiểm tra Email đã tạo tài khoản chưa**
+- **Lời thuyết trình (20 giây):**
+  > *"Ở bước 6, cứ xong mỗi Phase là tôi trực tiếp vào kiểm tra. Quá trình kiểm tra thực tế giúp tôi phát hiện và yêu cầu AI bổ sung ngay những tính năng rất sát sườn như đổi lại bộ Icon dự án, thêm tính năng Tạo danh sách Task hàng loạt và kiểm tra Email thành viên đã có tài khoản chưa trước khi thêm."*
 
 ---
 
-### SLIDE 7: BƯỚC 5 — ĐƯA LÊN CLOUD & BẮT AI TỰ CHẠY TEST LIVE
-- **Sơ đồ 4 khối kiểm chứng thực tế:**
-  - ☁️ **3 Đám mây thật:** `Vercel` (Web) + `Render` (Realtime) + `Supabase` (Database)
-  - 🤖 **Không nghe báo cáo suông:** Bắt AI mở trình duyệt chạy Test Live trước mặt
-  - 🛒 **Test như thật:** AI tự đăng ký tài khoản mới, tạo dự án **OmniShop** & **10 Tasks**
-  - ✅ **Kết quả:** Vượt qua **20/20 kịch bản** chức năng & bảo mật
-- **Lời nói khi thuyết trình (20 giây):**
-  > *"Đặc biệt, tôi không chấp nhận việc chỉ chạy trên máy cá nhân hay nghe AI báo cáo suông. Tôi yêu cầu đưa toàn bộ lên 3 đám mây thật, rồi bắt AI mở trình duyệt tự động tạo tài khoản mới, tạo dự án thương mại điện tử với 10 đầu việc thật ngay trước mắt để tôi theo dõi."*
+### SLIDE 7: BƯỚC 6B — AI TỰ KIỂM TRA KỸ THUẬT & CHẠY TEST THỰC TẾ
+- **Keyword hiển thị trên Slide:**
+  - 🛠️ **`1. Tự kiểm tra Build:`** Chạy `npm run build` đảm bảo `0` lỗi TypeScript
+  - 🤖 **`2. AI Browser tự chạy Test:`** Mở trình duyệt thao tác như người dùng thật
+  - 🛒 **`3. Tạo dữ liệu thật:`** Tự đăng ký tài khoản, lập dự án **OmniShop** & **10 Tasks**
+  - 🛡️ **`4. Vượt 20/20 kịch bản QA:`** Kiểm chứng phân quyền RBAC, chống IDOR & XSS
+- **Lời thuyết trình (20 giây):**
+  > *"Song song với sự kiểm tra của tôi, tôi yêu cầu AI tự kiểm tra kỹ thuật và tự mở trình duyệt chạy kiểm thử 20 kịch bản từ tạo tài khoản mới, lập dự án thương mại điện tử OmniShop với 10 đầu việc thật cho đến kiểm tra bảo mật phân quyền ngay trước mắt."*
 
 ---
 
-### SLIDE 8: ĐÚC KẾT — 3 BÍ QUYẾT LÀM CHỦ AI ĐỂ TẠO SẢN PHẨM
-- **3 Keyword vàng cho mọi dự án làm cùng AI:**
-  - 🥇 **`01. Bắt AI đưa 3 Options trước khi code`** *(Bạn giữ quyền quyết định kiến trúc)*
-  - 🥈 **`02. Liên tục dùng thử thật và bắt tinh chỉnh`** *(Biến bản nháp thành sản phẩm thực tế)*
-  - 🥉 **`03. Bắt AI tự chạy trình duyệt test trên trang Live`** *(Kiểm chứng chất lượng 100%)*
-- **Lời nói khi thuyết trình (15 giây):**
-  > *"Tóm lại, bất kỳ ai cũng có thể làm ra sản phẩm hoàn chỉnh cùng AI nếu nắm giữ 3 nguyên tắc: Luôn bắt AI đưa phương án trước khi code, trực tiếp dùng thử để ra lệnh nâng cấp, và bắt AI tự kiểm thử trên môi trường thật. Xin cảm ơn!"*
+### SLIDE 8: BƯỚC 7 — HOÀN THÀNH CÁC GIAI ĐOẠN & DEPLOY CHẠY GO-LIVE
+- **Keyword hiển thị trên Slide:**
+  - ✅ **`1. Hoàn tất nghiệm thu 100% các Phase`** theo đúng hồ sơ nghiệp vụ
+  - 📦 **`2. Đóng gói mã nguồn & bộ tài liệu chuẩn`** đẩy lên GitHub chính thức
+  - ☁️ **`3. Deploy Go-Live 3 Cloud:`** `Vercel` (Web) + `Render` (Realtime v2.0) + `Supabase` (DB)
+  - 📄 **`4. Xuất hồ sơ bàn giao & báo cáo QA`** sẵn sàng vận hành 24/7
+- **Lời thuyết trình (20 giây):**
+  > *"Chỉ khi toàn bộ các giai đoạn đã hoàn thành và vượt qua mọi bài kiểm thử của cả người lẫn AI, dự án mới bước sang Bước 7: đóng gói đẩy lên GitHub và triển khai chạy Go-Live chính thức trên 3 nền tảng đám mây Vercel, Render và Supabase."*
+
+---
+
+### SLIDE 9: TỔNG KẾT — 4 TRỤ CỘT LÀM CHỦ AI ĐỂ TẠO SẢN PHẨM HOÀN CHỈNH
+- **Keyword hiển thị trên Slide:**
+  - 🥇 **`01. Setup AI đúng vai trò & kỹ năng ngay từ đầu`**
+  - 🥈 **`02. Có Hồ sơ nghiệp vụ & Danh sách việc chi tiết mới code`**
+  - 🥉 **`03. Chia theo từng Phase — Người & AI cùng kiểm tra gắt gao`**
+  - 🏆 **`04. Hoàn thiện 100% các giai đoạn rồi Deploy chạy Go-Live thực tế`**
+- **Lời thuyết trình (15 giây):**
+  > *"Tổng kết lại, công thức để làm chủ AI tạo ra sản phẩm hoàn chỉnh nằm ở 4 trụ cột: Setup AI bài bản từ đầu, lập hồ sơ nghiệp vụ và danh sách việc chi tiết trước khi code, chia dự án theo từng Phase có người và AI cùng kiểm tra, và hoàn tất 100% mới đưa lên vận hành Go-Live. Xin cảm ơn!"*
