@@ -15,6 +15,7 @@ import { MembersView } from './MembersView';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { TaskDrawer } from '@/components/kanban/TaskDrawer';
 import { CreateTaskModal } from '@/components/kanban/CreateTaskModal';
+import { BulkCreateTaskModal } from '@/components/kanban/BulkCreateTaskModal';
 export type WorkspaceTab = 'summary' | 'list' | 'board' | 'timeline' | 'members';
 
 interface ProjectWorkspaceProps {
@@ -38,6 +39,7 @@ export function ProjectWorkspace({
   const [isDark, setIsDark] = useState(true);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [createColumnId, setCreateColumnId] = useState<string>('');
 
   const permissions = useMemo(() => getProjectPermissions(userRole), [userRole]);
@@ -99,6 +101,18 @@ export function ProjectWorkspace({
           ? { ...col, tasks: [...(col.tasks || []), newTask] }
           : col
       ),
+    }));
+  };
+
+  const handleBulkTasksCreated = (newTasks: any[]) => {
+    setProject((prev: any) => ({
+      ...prev,
+      columns: prev.columns.map((col: any) => {
+        const addedForCol = newTasks.filter((t) => t.columnId === col.id);
+        return addedForCol.length > 0
+          ? { ...col, tasks: [...(col.tasks || []), ...addedForCol] }
+          : col;
+      }),
     }));
   };
 
@@ -249,17 +263,30 @@ export function ProjectWorkspace({
               <span className="font-medium max-w-[130px] truncate">{currentUser.fullName}</span>
             </div>
 
-            {/* Create Task Button (Hidden for VIEWER) */}
+            {/* Create Task Buttons (Hidden for VIEWER) */}
             {permissions.canCreateTask && (
-              <button
-                onClick={() => {
-                  setCreateColumnId(project.columns?.[0]?.id || '');
-                  setIsCreateModalOpen(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-              >
-                <i className="fa-solid fa-plus" /> Tạo Task
-              </button>
+              <>
+                <button
+                  onClick={() => setIsBulkModalOpen(true)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
+                    isDark
+                      ? 'bg-[#22272B] border-[#38414A] text-[#DEE4EA] hover:border-[#579DFF] hover:text-white'
+                      : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100'
+                  }`}
+                  title="Thêm nhiều công việc cùng lúc (Dán danh sách / CSV)"
+                >
+                  <i className="fa-solid fa-list-check text-[#579DFF]" /> Thêm hàng loạt
+                </button>
+                <button
+                  onClick={() => {
+                    setCreateColumnId(project.columns?.[0]?.id || '');
+                    setIsCreateModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0C66E4] hover:bg-[#0055CC] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                >
+                  <i className="fa-solid fa-plus" /> Tạo Task
+                </button>
+              </>
             )}
 
             {/* Notification Bell */}
@@ -390,21 +417,35 @@ export function ProjectWorkspace({
         />
       )}
 
-      {/* 5. CREATE TASK MODAL */}
+      {/* 5. CREATE TASK MODAL & BULK CREATE MODAL */}
       {permissions.canCreateTask && (
-        <CreateTaskModal
-          isOpen={isCreateModalOpen}
-          projectId={project.id}
-          columns={project.columns || []}
-          milestones={project.milestones || []}
-          members={project.members || []}
-          currentUserId={currentUser?.id}
-          permissions={permissions}
-          defaultColumnId={createColumnId}
-          isDark={isDark}
-          onClose={() => setIsCreateModalOpen(false)}
-          onTaskCreated={handleTaskCreated}
-        />
+        <>
+          <CreateTaskModal
+            isOpen={isCreateModalOpen}
+            projectId={project.id}
+            columns={project.columns || []}
+            milestones={project.milestones || []}
+            members={project.members || []}
+            currentUserId={currentUser?.id}
+            permissions={permissions}
+            defaultColumnId={createColumnId}
+            isDark={isDark}
+            onClose={() => setIsCreateModalOpen(false)}
+            onTaskCreated={handleTaskCreated}
+          />
+          <BulkCreateTaskModal
+            isOpen={isBulkModalOpen}
+            projectId={project.id}
+            columns={project.columns || []}
+            milestones={project.milestones || []}
+            members={project.members || []}
+            currentUserId={currentUser?.id}
+            permissions={permissions}
+            isDark={isDark}
+            onClose={() => setIsBulkModalOpen(false)}
+            onTasksCreated={handleBulkTasksCreated}
+          />
+        </>
       )}
     </div>
   );

@@ -465,3 +465,138 @@ export async function createQuickTask(data: {
     return { success: false, error: error?.message || 'Không thể tạo task mới' };
   }
 }
+
+export async function createBulkTasks(data: {
+  projectId: string;
+  columnId: string;
+  milestoneId?: string;
+  assigneeId?: string;
+  defaultPriority?: string;
+  defaultRiskLevel?: string;
+  defaultIssueType?: string;
+  items: {
+    title: string;
+    description?: string;
+    issueType?: string;
+    priority?: string;
+    dueDate?: string;
+  }[];
+}) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'Vui lòng đăng nhập' };
+
+    const role = await resolveUserProjectRole(data.projectId, user.id);
+    const perms = getProjectPermissions(role);
+    if (!perms.canCreateTask) {
+      return { success: false, error: 'Tài khoản VIEWER không có quyền tạo Task!' };
+    }
+
+    const cleanItems = (data.items || [])
+      .map((item) => ({
+        ...item,
+        title: (item.title || '').trim(),
+      }))
+      .filter((item) => item.title.length > 0)
+      .slice(0, 100);
+
+    if (cleanItems.length === 0) {
+      return { success: false, error: 'Vui lòng nhập ít nhất 1 công việc hợp lệ' };
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: data.projectId },
+    });
+    if (!project) return { success: false, error: 'Dự án không tồn tại' };
+
+    const safeAssigneeId = perms.canAssignOthers
+      ? data.assigneeId || user.id
+      : user.id;
+
+    const createdTasks = await prisma.$transaction(async (tx) => {
+      const maxTask = await tx.task.findFirst({
+        where: { projectId: project.id },
+        orderBy: { taskNumber: 'desc' },
+      });
+      let currentNum = maxTask?.taskNumber || 0;
+      const baseOrder = Date.now() % 100000;
+      const results: any[] = [];
+
+      for (let i = 0; i < cleanItems.length; i++) {
+        const item = cleanItems[i];
+        currentNum += 1;
+        const issueKey = `${project.projectKey}-${currentNum}`;
+
+        const validType = ['TASK', 'STORY', 'BUG', 'SUBTASK'].includes(
+          (item.issueType || '').toUpperCase()
+        )
+          ? item.issueType!.toUpperCase()
+          : data.defaultIssueType || 'TASK';
+
+        const validPriority = ['LOWEST', 'LOW', 'MEDIUM', 'HIGH', 'BLOCKER'].includes(
+          (item.priority || '').toUpperCase()
+        )
+          ? item.priority!.toUpperCase()
+          : data.defaultPriority || 'MEDIUM';
+
+        let parsedDueDate: Date | null = null;
+        if (perms.canEditTaskMeta && item.dueDate) {
+          const d = new Date(item.dueDate);
+          if (!isNaN(d.getTime())) parsedDueDate = d;
+        }
+
+        const created = await tx.task.create({
+          data: {
+            projectId: project.id,
+            taskNumber: currentNum,
+            issueKey,
+            title: item.title,
+            description: item.description?.trim() || '',
+            columnId: data.columnId,
+            issueType: validType,
+            priority: perms.canEditTaskMeta ? validPriority : 'MEDIUM',
+            riskLevel: perms.canEditTaskMeta ? data.defaultRiskLevel || 'LOW' : 'LOW',
+            milestoneId: data.milestoneId || null,
+            reporterId: user.id,
+            assigneeId: safeAssigneeId,
+            orderIndex: baseOrder + i * 10,
+            dueDate: parsedDueDate,
+          },
+          include: {
+            column: true,
+            assignee: true,
+            reporter: true,
+            milestone: true,
+            checklists: { orderBy: { position: 'asc' } },
+            activityLogs: {
+              orderBy: { createdAt: 'desc' },
+              include: { user: true },
+            },
+          },
+        });
+
+        results.push(created);
+      }
+
+      return results;
+    });
+
+    if (safeAssigneeId && safeAssigneeId !== user.id) {
+      await createAndDispatchNotifications({
+        userIds: [safeAssigneeId],
+        excludeUserId: user.id,
+        projectId: project.id,
+        type: 'TASK_ASSIGNED',
+        title: `[${project.projectKey}] Bạn được giao ${createdTasks.length} công việc mới`,
+        message: `${user.fullName} vừa thêm hàng loạt ${createdTasks.length} công việc cho bạn trong dự án "${project.name}".`,
+      });
+    }
+
+    revalidatePath(`/projects/${project.id}`);
+    revalidatePath('/spaces');
+    return { success: true, tasks: createdTasks };
+  } catch (error: any) {
+    console.error('Lỗi tạo Task hàng loạt:', error);
+    return { success: false, error: error?.message || 'Không thể tạo danh sách task hàng loạt' };
+  }
+}
