@@ -151,11 +151,6 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg bg-[#1D2125] border border-[#38414A] text-white placeholder-[#6B778C] focus:outline-none focus:ring-2 focus:ring-[#579DFF]"
               />
-              {mode === 'LOGIN' && (
-                <p className="text-[11px] text-[#6B778C] mt-1">
-                  Mật khẩu mặc định tài khoản mẫu: <code className="text-[#579DFF]">123456</code>
-                </p>
-              )}
             </div>
 
             <button
@@ -172,12 +167,12 @@ export function LoginForm({ demoAccounts, defaultMode = 'LOGIN' }: LoginFormProp
           </form>
         </div>
 
-        {/* Quick 1-click Demo Accounts for Testing RBAC */}
+        {/* Quick Workspace Switcher for 4 Enterprise Roles */}
         {demoAccounts.length > 0 && (
           <div className="bg-[#22272B] border border-[#2C333A] rounded-2xl p-4 space-y-3">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
-              <i className="fa-solid fa-shield-halved text-sm text-[#579DFF]" />
-              Đăng nhập nhanh tài khoản Demo (Test 4 Role)
+              <i className="fa-solid fa-users-gear text-sm text-[#579DFF]" />
+              Chuyển đổi nhanh Không gian Nhân sự (4 Vai trò RBAC)
             </div>
             <div className="space-y-2">
               {demoAccounts.map((acc) => {

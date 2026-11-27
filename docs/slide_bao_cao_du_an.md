@@ -29,12 +29,12 @@ flowchart LR
 - **Keyword hiển thị trên Slide:**
   - 🧭 **Lộ trình:** `Setup AI` ➔ `Hồ sơ Nghiệp vụ` ➔ `Build từng Pha` ➔ `Deploy Go-Live`
   - 🤝 **Phối hợp:** Con người định hướng & duyệt — AI thực thi & kiểm thử
-  - 🌐 **Sản phẩm Live:** `https://taskmg-six.vercel.app/`
-  - 💻 **Mã nguồn:** `github.com/HuyDdoox/taskmg`
+  - 📘 **Phương pháp:** `7 Bước Điều Phối AI Chuẩn`
+  - 🚀 **Thực chiến:** `Dẫn Chứng Dự Án Thực Tế (Ở Cuối Bài)`
 
 ---
 
-### SLIDE 2: BƯỚC 1 — SETUP AI CHO CÁC CÔNG VIỆC KHÁC NHAU
+### SLIDE 2: BƯỚC 1 — SETUP AI CHO CÁC CÔNG VIỆC KHÁC NHAU *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
   - ⚙️ **`1. Cài đặt Rules cố định:`** Quy chuẩn làm việc 5 bước (*Plan & Confirm*)
   - 🏗️ **`2. Skill Quy trình 7 Pha:`** Dẫn dắt dự án bài bản từ đầu đến cuối
@@ -43,57 +43,57 @@ flowchart LR
 
 ---
 
-### SLIDE 3: BƯỚC 2 & 3 — TỔNG HỢP THÔNG TIN & LẬP HỒ SƠ NGHIỆP VỤ (`docs/`)
+### SLIDE 3: BƯỚC 2 & 3 — TỔNG HỢP THÔNG TIN & LẬP HỒ SƠ NGHIỆP VỤ (`docs/`) *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
   - 📥 **`1. Tổng hợp thông tin:`** Làm rõ bài toán, mục tiêu và đối tượng dùng
-  - 📘 **`2. Kiến thức nghiệp vụ:`** Đặc tả quy tắc & phân quyền (`business_logic.md`)
-  - 🗺️ **`3. Kế hoạch triển khai:`** Thiết kế kiến trúc & lược đồ 10 bảng CSDL
-  - 📋 **`4. Danh sách việc chi tiết:`** Chia nhỏ từng đầu việc rõ ràng (`TASK-1` ➔ `TASK-15`)
+  - 📘 **`2. Kiến thức nghiệp vụ:`** Đặc tả quy tắc nghiệp vụ & ma trận phân quyền
+  - 🗺️ **`3. Kế hoạch triển khai:`** Thiết kế kiến trúc & lược đồ cơ sở dữ liệu
+  - 📋 **`4. Danh sách việc chi tiết:`** Chia nhỏ từng đầu việc theo mã thứ tự rõ ràng
 
 ---
 
-### SLIDE 4: BƯỚC 4 — BỔ SUNG, TINH GỌN & CHỐT DỰ ÁN THEO TỪNG PHA
+### SLIDE 4: BƯỚC 4 — BỔ SUNG, TINH GỌN & CHỐT DỰ ÁN THEO TỪNG PHA *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
-  - ✂️ **`1. Rà soát & Tinh gọn:`** Cắt bỏ Video/Chat thừa để tối ưu tốc độ web
-  - ➕ **`2. Bổ sung sát thực tế:`** Chốt 5 góc nhìn Jira & phân quyền 4 Role RBAC
+  - ✂️ **`1. Rà soát & Tinh gọn:`** Loại bỏ tính năng rườm rà để tối ưu tốc độ hệ thống
+  - ➕ **`2. Bổ sung sát thực tế:`** Chốt các tính năng cốt lõi & phân quyền vai trò
   - 🧱 **`3. Chia dự án theo từng Phase:`** Từ CSDL ➔ Backend ➔ Giao diện ➔ Kiểm thử
   - 🔒 **`4. Khóa cổng duyệt (Quality Gate):`** Chốt kế hoạch từng pha mới bắt đầu code
 
 ---
 
-### SLIDE 5: BƯỚC 5 — AI THỰC THI BUILD THEO TỪNG PHASE
+### SLIDE 5: BƯỚC 5 — AI THỰC THI BUILD THEO TỪNG PHASE *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
-  - 🗄️ **`Phase 1 (Database):`** Khởi tạo 10 bảng PostgreSQL & nạp dữ liệu mẫu
-  - 🔐 **`Phase 2 (Backend & Auth):`** Lập trình Server Actions, Cookie `HttpOnly` & RBAC
-  - 💻 **`Phase 3 (Frontend 5 Views):`** Dựng `Summary`, `List`, `Board Kanban`, `Timeline`, `Members`
-  - ⚡ **`Phase 4 (Realtime & Bell):`** Kết nối Socket.io Non-Blocking & Chuông thông báo 🔔
+  - 🗄️ **`Phase 1:`** Thiết kế cấu trúc CSDL & nạp dữ liệu nền tảng
+  - 🔐 **`Phase 2:`** Lập trình API Backend, Xác thực bảo mật & Phân quyền
+  - 💻 **`Phase 3:`** Xây dựng Giao diện người dùng (UI/UX) & Luồng tương tác
+  - ⚡ **`Phase 4:`** Tích hợp đồng bộ thời gian thực & Tối ưu tốc độ
 
 ---
 
-### SLIDE 6: BƯỚC 6A — CON NGƯỜI KIỂM TRA TỪNG PHA & CHỈ ĐẠO NÂNG CẤP
+### SLIDE 6: BƯỚC 6A — CON NGƯỜI KIỂM TRA TỪNG PHA & CHỈ ĐẠO NÂNG CẤP *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
-  - 👀 **`1. Trực tiếp dùng thử từng Phase`** để đánh giá trải nghiệm thực tế
-  - 🎨 **`2. Giao diện & Biểu tượng:`** Yêu cầu đổi sang bộ Icon Font Awesome 6 sắc nét
-  - ⚡ **`3. Tốc độ nhập việc:`** Bổ sung tính năng **Tạo Danh Sách Task Hàng Loạt** (*Paste / CSV*)
-  - 🔍 **`4. Quản lý nhân sự:`** Bổ sung bước **Kiểm tra Email đã tạo tài khoản chưa**
+  - 👀 **`1. Trải nghiệm từng pha:`** Dùng thử để đánh giá trải nghiệm thực tế
+  - 🎨 **`2. Giao diện & Trải nghiệm:`** Chỉ đạo AI tinh chỉnh bố cục, màu sắc & biểu tượng trực quan
+  - ⚡ **`3. Tiện ích thao tác nhanh:`** Yêu cầu bổ sung công cụ nhập liệu & xử lý dữ liệu hàng loạt
+  - 🔍 **`4. Chặt chẽ nghiệp vụ:`** Rà soát & bổ sung các bước kiểm tra tính hợp lệ dữ liệu đầu vào
 
 ---
 
-### SLIDE 7: BƯỚC 6B — AI TỰ KIỂM TRA KỸ THUẬT & CHẠY TEST THỰC TẾ
+### SLIDE 7: BƯỚC 6B — AI TỰ KIỂM TRA KỸ THUẬT & CHẠY TEST THỰC TẾ *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
-  - 🛠️ **`1. Tự kiểm tra Build:`** Chạy `npm run build` đảm bảo `0` lỗi TypeScript
-  - 🤖 **`2. AI Browser tự chạy Test:`** Mở trình duyệt thao tác như người dùng thật
-  - 🛒 **`3. Tạo dữ liệu thật:`** Tự đăng ký tài khoản, lập dự án **OmniShop** & **10 Tasks**
-  - 🛡️ **`4. Vượt 20/20 kịch bản QA:`** Kiểm chứng phân quyền RBAC, chống IDOR & XSS
+  - 🛠️ **`1. Tự kiểm tra Build:`** Chạy lệnh Build kiểm tra `0` lỗi cú pháp & kiểu dữ liệu
+  - 🤖 **`2. AI Browser tự chạy Test:`** AI mở trình duyệt tự động thao tác như người dùng thật
+  - 🛒 **`3. Tạo dữ liệu thật:`** Tự đăng ký tài khoản, tạo dữ liệu mẫu & test luồng E2E
+  - 🛡️ **`4. Vượt toàn bộ kịch bản QA:`** Kiểm chứng bảo mật phân quyền, chống truy cập trái phép
 
 ---
 
-### SLIDE 8: BƯỚC 7 — HOÀN THÀNH CÁC GIAI ĐOẠN & DEPLOY CHẠY GO-LIVE
+### SLIDE 8: BƯỚC 7 — HOÀN THÀNH CÁC GIAI ĐOẠN & DEPLOY CHẠY GO-LIVE *(Hướng dẫn tổng quát)*
 - **Keyword hiển thị trên Slide:**
-  - ✅ **`1. Hoàn tất nghiệm thu 100% các Phase`** theo đúng hồ sơ nghiệp vụ
-  - 📦 **`2. Đóng gói mã nguồn & bộ tài liệu chuẩn`** đẩy lên GitHub chính thức
-  - ☁️ **`3. Deploy Go-Live 3 Cloud:`** `Vercel` (Web) + `Render` (Realtime v2.0) + `Supabase` (DB)
-  - 📄 **`4. Xuất hồ sơ bàn giao & báo cáo QA`** sẵn sàng vận hành 24/7
+  - ✅ **`1. Hoàn tất nghiệm thu 100%`** các Phase theo đúng hồ sơ nghiệp vụ
+  - 📦 **`2. Đóng gói mã nguồn &`** bộ tài liệu chuẩn đẩy lên GitHub chính thức
+  - ☁️ **`3. Triển khai lên hạ tầng Cloud:`** Máy chủ Web App + Máy chủ Realtime + Cơ sở dữ liệu Đám mây
+  - 📄 **`4. Xuất hồ sơ bàn giao &`** báo cáo QA sẵn sàng vận hành 24/7
 
 ---
 
@@ -119,18 +119,29 @@ flowchart LR
 
 ---
 
-### SLIDE 10 (MỚI): DẪN CHỨNG KẾT QUẢ THỰC TẾ TỪ DỰ ÁN TASKMG WORKSPACE
-*(Các bằng chứng sống đang chạy trực tiếp tại `https://taskmg-six.vercel.app/`)*
+### SLIDE 10 (MỚI): ÁP DỤNG THỰC TẾ — VẬN HÀNH DỰ ÁN TASKMG WORKSPACE
+*(Luồng phối hợp 4 Vai trò • 5 Góc nhìn Jira • Đang chạy thực tế tại `https://taskmg-six.vercel.app/`)*
 
-- **Dẫn chứng 1 — 🗂️ Dự Án Mẫu `TASK` (15 Công Việc & 4 Vai Trò RBAC):**
-  - 10 bảng PostgreSQL trên Supabase; 4 tài khoản mẫu `@company.com` kiểm chứng phân quyền (`ADMIN` toàn quyền, `PM` quản lý, `MEMBER` bị khóa cột `Done` 🔒, `VIEWER` chỉ xem, chặn đứng **IDOR** khi truy cập trái phép).
-- **Dẫn chứng 2 — 🛒 Dự Án Thật `OmniShop E-Commerce` (`Key: OMNI`):**
-  - Do **AI Browser Agent** tự mở trình duyệt đăng ký tài khoản mới (`minhquan.lead@company.com`), tự khởi tạo dự án thật với **5 thành viên**, **3 Giai đoạn (Sprints)** và **10 Công việc (`OMNI-1` ➔ `OMNI-10`)**.
-- **Dẫn chứng 3 — ⚡ Các Tính Năng Thực Chiến Nâng Cấp Theo Lệnh PO:**
-  - **Tạo Task Hàng Loạt:** Dán 8 dòng tự động tách nhãn `[STORY]`, `[TASK]`, `[BUG]` & mức ưu tiên `| [BLOCKER]`, `| [HIGH]` hoặc nhập file `.CSV`.
-  - **Check Email Thành Viên:** Kiểm tra email đã đăng ký tài khoản chưa trước khi thêm vào dự án + cấp link mời 1 lần `/accept-invite`.
-- **Dẫn chứng 4 — 📊 Chỉ Số Kỹ Thuật & Kiểm Thử E2E Live:**
-  - Thời gian Build Production **`1.38 giây`** (`0` lỗi TypeScript) • Đạt **`20/20` kịch bản QA (PASS 100%)** • Máy chủ Render v2.0 xử lý trực tiếp **`68` sự kiện Realtime**.
+- **Ô 01 — 👑 Khởi Tạo & Lập Kế Hoạch (`ADMIN / PM`):**
+  - **`KHÔNG GIAN /SPACES`:** Quản lý đa dự án độc lập trên cùng một hệ thống.
+  - **`CHECK EMAIL & MỜI`:** Kiểm tra email tài khoản tồn tại & phân quyền 4 Role RBAC.
+  - **`CHIA GIAI ĐOẠN`:** Lập các kỳ Sprint & Milestone theo tiến độ dự án.
+  - **`TẠO TASK HÀNG LOẠT`:** Dùng Smart Paste tự tách Tag (`[BUG] | [HIGH]`) & Import file `.CSV`.
+- **Ô 02 — 👨‍💻 Nhận Việc & Thực Thi (`MEMBER & REALTIME`):**
+  - **`CHUÔNG REALTIME`:** Báo giao việc mới & lời mời tham gia dự án tức thì qua WebSocket.
+  - **`NHẬN TASK CÁ NHÂN`:** Lọc nhanh công việc của mình theo chữ viết tắt Avatar.
+  - **`TASK DRAWER CHI TIẾT`:** Cập nhật mô tả, tích Action Checklist tiến độ `0% ➔ 100%`.
+  - **`KÉO SANG IN REVIEW`:** Hệ thống tự động khóa cột `Done` đối với Member để chờ PM duyệt.
+- **Ô 03 — 📊 5 Góc Nhìn Quản Trị & Duyệt Việc (`PM / VIEWER`):**
+  - **`KANBAN & LIST VIEW`:** Kéo thả trạng thái 4 cột & lọc đa chiều theo Rủi ro/Ưu tiên.
+  - **`SUMMARY & TIMELINE`:** Biểu đồ % hoàn thành dự án & lộ trình thanh thời gian Gantt.
+  - **`PM DUYỆT SANG DONE`:** PM kiểm tra công việc ở cột `In Review` và chốt nghiệm thu sang `Done`.
+  - **`CHẾ ĐỘ VIEWER (KHÁCH)`:** Giảng viên/Khách hàng vào giám sát trực tiếp ở chế độ `Read-Only`.
+- **Ô 04 — 🚀 Hiệu Quả Áp Dụng Trên 2 Dự Án Live (`[TASK]` & `[OMNI]`):**
+  - **`DỰ ÁN [TASK] (15 VIỆC)`:** 4 Giai đoạn Sprint • 4 Vai trò Phân quyền RBAC thực tế.
+  - **`DỰ ÁN [OMNI] (10 VIỆC)`:** Dự án Thương mại điện tử OmniShop do AI tự lập từ số 0.
+  - **`68 SỰ KIỆN REALTIME`:** Đồng bộ trực tiếp qua máy chủ Render WebSocket v2.0.
+  - **`20/20 QA • BUILD 1.38S`:** Chặn truy cập trái phép IDOR & Chống XSS 100%.
 
 ---
 

@@ -70,10 +70,10 @@ export async function registerAction(fullNameInput: string, emailInput: string, 
 }
 
 const DEMO_EMAIL_WHITELIST = [
-  'sep@company.com',
-  'tester@company.com',
-  'deva@company.com',
-  'designer@company.com',
+  'quanghuy.do@taskmg.vn',
+  'minhquan.tran@taskmg.vn',
+  'hoangnam.nguyen@taskmg.vn',
+  'thuha.le@taskmg.vn',
 ];
 
 export async function quickLoginDemoAction(emailInput: string) {
@@ -82,19 +82,19 @@ export async function quickLoginDemoAction(emailInput: string) {
     if (!DEMO_EMAIL_WHITELIST.includes(email)) {
       return {
         success: false,
-        error: 'Chỉ 4 tài khoản mẫu Demo (@company.com) mới được phép đăng nhập nhanh!',
+        error: 'Tài khoản này yêu cầu đăng nhập bằng mật khẩu!',
       };
     }
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return { success: false, error: 'Tài khoản demo không tồn tại' };
+      return { success: false, error: 'Tài khoản nhân sự không tồn tại' };
     }
     await createSession(user.id);
     revalidatePath('/');
     return { success: true };
   } catch (error) {
-    console.error('Lỗi đăng nhập nhanh:', error);
-    return { success: false, error: 'Không thể đăng nhập nhanh' };
+    console.error('Lỗi chuyển đổi tài khoản:', error);
+    return { success: false, error: 'Không thể chuyển đổi tài khoản' };
   }
 }
 

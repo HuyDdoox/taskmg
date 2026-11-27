@@ -17,58 +17,58 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
 
-  // 2. Tạo 4 Thành viên (Users)
+  // 2. Tạo 4 Thành viên Nhân sự (Users)
   const sep = await prisma.user.create({
     data: {
-      email: 'sep@company.com',
-      fullName: 'Sếp / Product Owner',
+      email: 'quanghuy.do@taskmg.vn',
+      fullName: 'Đỗ Quang Huy',
       passwordHash: 'hashed_password_123',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sep',
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Huy',
     },
   });
 
   const devA = await prisma.user.create({
     data: {
-      email: 'deva@company.com',
-      fullName: 'Nguyễn Văn Dev (Fullstack)',
+      email: 'hoangnam.nguyen@taskmg.vn',
+      fullName: 'Nguyễn Hoàng Nam',
       passwordHash: 'hashed_password_123',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DevA',
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Nam',
     },
   });
 
   const testerB = await prisma.user.create({
     data: {
-      email: 'tester@company.com',
-      fullName: 'Trần Thị QA (Tester)',
+      email: 'minhquan.tran@taskmg.vn',
+      fullName: 'Trần Minh Quân',
       passwordHash: 'hashed_password_123',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=TesterB',
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Quan',
     },
   });
 
   const designerC = await prisma.user.create({
     data: {
-      email: 'designer@company.com',
-      fullName: 'Lê Hoàng Designer (UI/UX)',
+      email: 'thuha.le@taskmg.vn',
+      fullName: 'Lê Thu Hà',
       passwordHash: 'hashed_password_123',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DesignerC',
+      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ha',
     },
   });
 
-  console.log('✅ Đã tạo 4 thành viên mẫu.');
+  console.log('✅ Đã tạo 4 tài khoản nhân sự.');
 
   // 3. Tạo Dự án (Project)
   const project = await prisma.project.create({
     data: {
-      name: 'Website Quản lý Công việc & Dự án',
+      name: 'Hệ Thống Quản Trị Dự Án & Công Việc TaskMG',
       projectKey: 'TASK',
-      description: 'Hệ thống quản lý công việc và dự án chuẩn Jira thu nhỏ với bảng Kanban kéo thả thời gian thực, chat nhóm nội bộ và thông báo email tự động.',
+      description: 'Nền tảng quản trị đa dự án theo chuẩn Atlassian Jira tích hợp phân quyền 4 vai trò RBAC, tạo công việc hàng loạt và đồng bộ thông báo thời gian thực qua WebSocket.',
       ownerId: sep.id,
       members: {
         create: [
           { userId: sep.id, role: 'ADMIN' },
+          { userId: testerB.id, role: 'PM' },
           { userId: devA.id, role: 'MEMBER' },
-          { userId: testerB.id, role: 'MEMBER' },
-          { userId: designerC.id, role: 'MEMBER' },
+          { userId: designerC.id, role: 'VIEWER' },
         ],
       },
     },
@@ -219,8 +219,8 @@ async function main() {
     {
       taskNumber: 5,
       issueKey: 'TASK-5',
-      title: 'Cắt giao diện Bảng Kanban kéo thả ná ná Jira',
-      description: 'Mô tả: Dựng khung 4 cột trạng thái, tích hợp kéo thả mượt mà với hiệu ứng viền sáng khi rê thẻ vào cột mới.',
+      title: 'Xây dựng Bảng kéo thả Kanban 4 trạng thái theo chuẩn Atlassian Jira',
+      description: 'Hỗ trợ kéo thả mượt mà qua 4 cột Cần làm, Đang làm, Chờ duyệt và Hoàn thành kèm kiểm soát khóa cột Done đối với Member.',
       issueType: 'STORY',
       priority: 'BLOCKER',
       riskLevel: 'HIGH',
